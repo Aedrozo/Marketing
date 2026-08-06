@@ -83,4 +83,61 @@ OUTPUT: Return ONLY the requested copy, no preamble, no explanations, no markdow
     if (!text) throw new Error("The AI returned an empty response — try again.");
     return text;
   };
+
+  /**
+   * Generate from an image + instruction (used by the Studio Editor).
+   * @param {string} instruction - what to do with the image
+   * @param {string} dataUrl - a data: URL (jpeg/png/webp) of the image
+   * @param {object} [opts] - {system: override system prompt}
+   * @returns {Promise<string>}
+   */
+  GEM.aiVision = async function (instruction, dataUrl, opts) {
+    const key = (GEM.getSettings().apiKey || "").trim();
+    if (!key) {
+      throw new Error("Add your Claude API key in the app's Settings tab to enable AI tools.");
+    }
+    const m = /^data:(image\/(?:jpeg|png|webp|gif));base64,(.+)$/.exec(dataUrl || "");
+    if (!m) throw new Error("Couldn't read the image for AI analysis.");
+    let resp;
+    try {
+      resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": key,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: "claude-opus-5",
+          max_tokens: 2048,
+          output_config: { effort: "low" },
+          system: (opts && opts.system) || brandSystemPrompt(),
+          messages: [{
+            role: "user",
+            content: [
+              { type: "image", source: { type: "base64", media_type: m[1], data: m[2] } },
+              { type: "text", text: instruction }
+            ]
+          }]
+        })
+      });
+    } catch (e) {
+      throw new Error("Couldn't reach the Claude API from this page. AI tools work on your live site (aedrozo.github.io/Marketing) or when the app is opened directly.");
+    }
+    if (!resp.ok) {
+      const body = await resp.json().catch(() => null);
+      const msg = body && body.error && body.error.message ? body.error.message : `HTTP ${resp.status}`;
+      if (resp.status === 401) throw new Error("That API key was rejected. Double-check it in Settings (keys start with sk-ant-).");
+      if (resp.status === 429) throw new Error("Rate limited by the Claude API — wait a minute and try again.");
+      throw new Error("Claude API error: " + msg);
+    }
+    const data = await resp.json();
+    if (data.stop_reason === "refusal") {
+      throw new Error("Claude declined this one — try a different image or request.");
+    }
+    const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n").trim();
+    if (!text) throw new Error("The AI returned an empty response — try again.");
+    return text;
+  };
 })();

@@ -36,7 +36,7 @@
 
   /* ---------------- Navigation ---------------- */
   function switchTab(id) {
-    $$(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.tab === id));
+    $$(".nav-item[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === id));
     $$(".panel").forEach(p => p.classList.toggle("active", p.id === "panel-" + id));
     window.scrollTo({ top: 0 });
     localStorage.setItem("gem-tab", id);
@@ -1022,7 +1022,7 @@
     const now = new Date();
     calYear = now.getFullYear(); calMonth = now.getMonth();
 
-    $$(".nav-item").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+    $$(".nav-item[data-tab]").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
 
     $("#cal-prev").addEventListener("click", () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
     $("#cal-next").addEventListener("click", () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });

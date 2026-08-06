@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEM Studio Editor — Photo &amp; Video</title>
+<meta name="description" content="Professional photo and video editor for GEM Home Team content — adjustments, crops, text, branding, AI tools, and music.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 8 L92 42 L82 42 L82 92 L18 92 L18 42 L8 42 Z' fill='%2345B6E8'/><path d='M50 48 L62 62 L50 76 L38 62 Z' fill='%230D2B36'/></svg>">
+<style>
+  :root {
+    --navy: #0D2B36; --navy-2: #081E27; --panel: #10333F; --panel-2: #0E2C38;
+    --blue: #45B6E8; --gold: #E8C468; --ink: #EAF3F7; --mut: #7FA3B2; --line: rgba(184,212,224,.14);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: var(--navy-2); color: var(--ink); min-height: 100vh;
+  }
+  button { font-family: inherit; }
+  .top {
+    display: flex; align-items: center; gap: 14px; padding: 12px 18px;
+    background: var(--navy); border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 40; flex-wrap: wrap;
+  }
+  .top h1 { font-size: 1.02rem; letter-spacing: .04em; font-weight: 800; }
+  .top .sub { color: var(--blue); font-size: .64rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; }
+  .top a.back { margin-left: auto; color: var(--mut); text-decoration: none; font-size: .82rem; border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; }
+  .top a.back:hover { color: var(--ink); border-color: var(--blue); }
+  .modes { display: flex; gap: 6px; margin-left: 10px; }
+  .mode-btn {
+    background: none; border: 1px solid var(--line); color: var(--mut); border-radius: 999px;
+    padding: 8px 16px; font-size: .85rem; font-weight: 700; cursor: pointer;
+  }
+  .mode-btn.active { background: var(--blue); border-color: var(--blue); color: var(--navy-2); }
+  .mode-panel { display: none; }
+  .mode-panel.active { display: block; }
+
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 18px; }
+  .workspace { display: grid; grid-template-columns: 1fr 340px; gap: 18px; align-items: start; }
+  @media (max-width: 980px) { .workspace { grid-template-columns: 1fr; } }
+
+  .stage {
+    background: #06161d; border: 1px solid var(--line); border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; min-height: 320px;
+    position: relative; overflow: hidden; padding: 14px;
+  }
+  .stage canvas { max-width: 100%; max-height: 72vh; border-radius: 6px; display: block; touch-action: none; }
+  .drop {
+    border: 2px dashed rgba(69,182,232,.4); border-radius: 14px; padding: 60px 24px;
+    text-align: center; cursor: pointer; color: var(--mut); width: 100%;
+  }
+  .drop:hover, .drop.over { border-color: var(--blue); color: var(--ink); background: rgba(69,182,232,.05); }
+  .drop strong { color: var(--ink); display: block; font-size: 1.05rem; margin-bottom: 6px; }
+  .drop .hint { font-size: .8rem; margin-top: 8px; }
+
+  .tools { display: flex; flex-direction: column; gap: 10px; }
+  details.tool {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  }
+  details.tool > summary {
+    list-style: none; cursor: pointer; padding: 12px 14px; font-weight: 800; font-size: .88rem;
+    display: flex; align-items: center; gap: 8px; user-select: none;
+  }
+  details.tool > summary::-webkit-details-marker { display: none; }
+  details.tool > summary::after { content: "▾"; margin-left: auto; color: var(--mut); transition: transform .15s; }
+  details.tool[open] > summary::after { transform: rotate(180deg); }
+  .tool-body { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+  .slider-row { display: grid; grid-template-columns: 92px 1fr 38px; gap: 8px; align-items: center; }
+  .slider-row label { font-size: .76rem; color: var(--mut); font-weight: 600; }
+  .slider-row output { font-size: .72rem; color: var(--blue); text-align: right; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--blue); height: 22px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--ink); border-radius: 999px;
+    padding: 6px 12px; font-size: .78rem; font-weight: 700; cursor: pointer;
+  }
+  .chip:hover { border-color: var(--blue); }
+  .chip.active { background: var(--blue); color: var(--navy-2); border-color: var(--blue); }
+  .btn {
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--ink); border-radius: 9px;
+    padding: 9px 14px; font-size: .84rem; font-weight: 700; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--blue); }
+  .btn.primary { background: var(--blue); border-color: var(--blue); color: var(--navy-2); }
+  .btn.gold { background: var(--gold); border-color: var(--gold); color: var(--navy-2); }
+  .btn.small { padding: 6px 10px; font-size: .76rem; }
+  .btn.danger:hover { border-color: #e37979; color: #e37979; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .field label { display: block; font-size: .72rem; color: var(--mut); font-weight: 700; margin-bottom: 4px; }
+  .field input[type=text], .field input[type=number], .field select, .field textarea {
+    width: 100%; background: var(--navy-2); border: 1px solid var(--line); color: var(--ink);
+    border-radius: 8px; padding: 8px 10px; font-size: .86rem; font-family: inherit;
+  }
+  .field textarea { min-height: 90px; resize: vertical; }
+  .note { font-size: .74rem; color: var(--mut); line-height: 1.55; }
+  .note a { color: var(--blue); }
+  .ai-out {
+    background: var(--navy-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px;
+    font-size: .84rem; line-height: 1.6; white-space: pre-wrap; display: none;
+  }
+  .ai-out.show { display: block; }
+  .swatches { display: flex; gap: 6px; }
+  .swatch { width: 26px; height: 26px; border-radius: 6px; border: 2px solid transparent; cursor: pointer; }
+  .swatch.active { border-color: #fff; }
+  .layer-item {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .layer-item.sel { border-color: var(--blue); }
+  .transport { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .transport .time { font-size: .78rem; color: var(--mut); font-variant-numeric: tabular-nums; }
+  #vid-scrub { flex: 1; min-width: 140px; }
+  .clip-item {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px;
+    display: flex; flex-direction: column; gap: 8px; font-size: .8rem;
+  }
+  .clip-item .name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .progress { height: 8px; border-radius: 999px; background: var(--navy-2); overflow: hidden; border: 1px solid var(--line); }
+  .progress > div { height: 100%; background: var(--blue); width: 0%; transition: width .2s; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .card h3 { font-size: .95rem; }
+  .card p { font-size: .8rem; color: var(--mut); line-height: 1.55; }
+  .card a { color: var(--blue); font-size: .84rem; font-weight: 700; text-decoration: none; }
+  .banner {
+    background: rgba(232,196,104,.08); border: 1px solid rgba(232,196,104,.35); border-radius: 12px;
+    padding: 14px 16px; font-size: .82rem; line-height: 1.6; color: var(--ink);
+  }
+  .banner strong { color: var(--gold); }
+  .hidden { display: none !important; }
+  h2.sec { font-size: 1.05rem; margin: 22px 0 10px; }
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--blue); color: var(--navy-2); font-weight: 800; font-size: .85rem;
+    padding: 10px 18px; border-radius: 999px; z-index: 90; opacity: 0; transition: opacity .2s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <svg width="34" height="34" viewBox="0 0 100 100" aria-hidden="true">
+    <path d="M50 6 L94 42 L82 42 L82 94 L18 94 L18 42 L6 42 Z" fill="#45B6E8"/>
+    <path d="M50 50 L63 65 L50 80 L37 65 Z" fill="#0D2B36"/>
+  </svg>
+  <div>
+    <h1>GEM Studio Editor</h1>
+    <div class="sub">Photo · Video · Music</div>
+  </div>
+  <nav class="modes" aria-label="Editor mode">
+    <button class="mode-btn active" data-mode="photo">📷 Photo</button>
+    <button class="mode-btn" data-mode="video">🎬 Video</button>
+    <button class="mode-btn" data-mode="music">🎵 Music</button>
+  </nav>
+  <a class="back" href="index.html">← Back to Marketing OS</a>
+</header>
+
+<!-- ============ PHOTO ============ -->
+<main class="wrap mode-panel active" id="mode-photo">
+  <div id="ph-empty">
+    <div class="drop" id="ph-drop" tabindex="0" role="button" aria-label="Open a photo">
+      <strong>📷 Drop a photo here — or click to browse</strong>
+      Edit listing shots, team photos, and client pics like a pro.
+      <div class="hint">JPG · PNG · WEBP · HEIC-converted &nbsp;·&nbsp; You can also paste from the clipboard (Ctrl/Cmd+V)</div>
+    </div>
+    <input type="file" id="ph-file" accept="image/*" class="hidden">
+  </div>
+
+  <div class="workspace hidden" id="ph-workspace">
+    <div>
+      <div class="stage"><canvas id="ph-canvas"></canvas></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn small" id="ph-new">📂 New photo</button>
+        <button class="btn small" id="ph-undo">↩ Undo</button>
+        <button class="btn small" id="ph-compare">👁 Hold to compare</button>
+        <span class="note" id="ph-dims"></span>
+      </div>
+    </div>
+
+    <div class="tools">
+      <details class="tool" open id="tool-adjust">
+        <summary>🎛 Adjust</summary>
+        <div class="tool-body" id="ph-sliders"></div>
+      </details>
+
+      <details class="tool">
+        <summary>✨ Presets &amp; LUTs</summary>
+        <div class="tool-body">
+          <div class="chips" id="ph-presets"></div>
+          <p class="note">Built for the GEM look — clean, editorial, never over-filtered.</p>
+          <div class="row">
+            <button class="btn small" id="ph-lut-btn">🎞 Import LUT (.cube)</button>
+            <span class="note" id="ph-lut-name"></span>
+          </div>
+          <div class="hidden" id="ph-lut-controls">
+            <div class="slider-row"><label for="ph-lut-mix">LUT strength</label><input type="range" id="ph-lut-mix" min="0" max="100" value="100"><output id="ph-lut-mix-val">100%</output></div>
+            <button class="btn small" id="ph-lut-clear">Remove LUT</button>
+          </div>
+          <p class="note">Works with the same professional .cube color-grade files Premiere and CapCut use.</p>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>✂️ Crop &amp; rotate</summary>
+        <div class="tool-body">
+          <div class="chips" id="ph-aspects"></div>
+          <div class="row">
+            <button class="btn small" id="ph-rot">⟳ Rotate 90°</button>
+            <button class="btn small" id="ph-fliph">⇋ Flip H</button>
+            <button class="btn small" id="ph-flipv">⇵ Flip V</button>
+          </div>
+          <div class="slider-row">
+            <label for="ph-straighten">Straighten</label>
+            <input type="range" id="ph-straighten" min="-15" max="15" step="0.5" value="0">
+            <output id="ph-straighten-val">0°</output>
+          </div>
+          <div class="row" id="ph-crop-actions">
+            <button class="btn small primary" id="ph-crop-apply">Apply crop</button>
+            <button class="btn small" id="ph-crop-cancel">Reset crop</button>
+          </div>
+          <p class="note">Drag the corners on the image to set the crop area after picking an aspect.</p>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>🔤 Text</summary>
+        <div class="tool-body">
+          <button class="btn small" id="ph-add-text">＋ Add text layer</button>
+          <div id="ph-text-layers" style="display:flex;flex-direction:column;gap:8px"></div>
+          <p class="note">Drag text right on the image to position it.</p>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>🏷 Badges &amp; overlays</summary>
+        <div class="tool-body">
+          <div class="chips" id="ph-badges"></div>
+          <button class="btn small" id="ph-add-overlay">🖼 Add image overlay (logo, headshot…)</button>
+          <div id="ph-overlays" style="display:flex;flex-direction:column;gap:8px"></div>
+          <p class="note">Drag badges and overlays right on the image to position them.</p>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>🖼 Frame &amp; border</summary>
+        <div class="tool-body">
+          <div class="slider-row"><label for="ph-frame-pad">Border</label><input type="range" id="ph-frame-pad" min="0" max="15" value="0"><output id="ph-frame-pad-val">0%</output></div>
+          <div class="swatches" id="ph-frame-colors">
+            <button class="swatch active" data-c="#F7F4EF" style="background:#F7F4EF" aria-label="cloud"></button>
+            <button class="swatch" data-c="#FFFFFF" style="background:#FFFFFF" aria-label="white"></button>
+            <button class="swatch" data-c="#0D2B36" style="background:#0D2B36" aria-label="navy"></button>
+            <button class="swatch" data-c="#E8C468" style="background:#E8C468" aria-label="gold"></button>
+            <button class="swatch" data-c="#000000" style="background:#000000" aria-label="black"></button>
+          </div>
+          <p class="note">A clean editorial border — great for feed posts and print.</p>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>💎 Logo &amp; watermark</summary>
+        <div class="tool-body">
+          <div class="row">
+            <label class="note" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="ph-logo-on"> Show GEM logo</label>
+          </div>
+          <div class="field"><label for="ph-logo-pos">Position</label>
+            <select id="ph-logo-pos">
+              <option value="br">Bottom right</option><option value="bl">Bottom left</option>
+              <option value="tr">Top right</option><option value="tl">Top left</option>
+              <option value="bc">Bottom center</option>
+            </select></div>
+          <div class="slider-row"><label for="ph-logo-size">Size</label><input type="range" id="ph-logo-size" min="4" max="20" value="8"><output id="ph-logo-size-val">8%</output></div>
+          <div class="slider-row"><label for="ph-logo-op">Opacity</label><input type="range" id="ph-logo-op" min="10" max="100" value="85"><output id="ph-logo-op-val">85%</output></div>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>🤖 AI tools</summary>
+        <div class="tool-body">
+          <div class="row">
+            <button class="btn small gold" id="ph-ai-grade">✨ AI auto-grade</button>
+            <button class="btn small" id="ph-ai-caption">📝 Write the caption</button>
+            <button class="btn small" id="ph-ai-alt">♿ Alt text</button>
+            <button class="btn small" id="ph-ai-critique">🎯 Coach this photo</button>
+          </div>
+          <div class="ai-out" id="ph-ai-out"></div>
+          <div class="row hidden" id="ph-ai-copyrow"><button class="btn small primary" id="ph-ai-copy">Copy</button></div>
+          <p class="note" id="ph-ai-note">Uses the Claude API key saved in the app's Settings tab. Roughly a cent per run.</p>
+        </div>
+      </details>
+
+      <details class="tool" open>
+        <summary>⬇️ Export</summary>
+        <div class="tool-body">
+          <div class="field"><label for="ph-exp-size">Size</label>
+            <select id="ph-exp-size">
+              <option value="orig">Original size</option>
+              <option value="1080x1350" selected>Instagram portrait · 1080×1350</option>
+              <option value="1080x1080">Instagram square · 1080×1080</option>
+              <option value="1080x1920">Story / Reel cover · 1080×1920</option>
+              <option value="1200x630">Facebook link · 1200×630</option>
+            </select></div>
+          <div class="field"><label for="ph-exp-fmt">Format</label>
+            <select id="ph-exp-fmt"><option value="jpeg" selected>JPG (best for photos)</option><option value="png">PNG (graphics/text)</option></select></div>
+          <button class="btn primary" id="ph-export">⬇ Export photo</button>
+          <p class="note">Exports render at full resolution with everything applied.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</main>
+
+<!-- ============ VIDEO ============ -->
+<main class="wrap mode-panel" id="mode-video">
+  <div id="vd-empty">
+    <div class="drop" id="vd-drop" tabindex="0" role="button" aria-label="Open video clips">
+      <strong>🎬 Drop video clips here — or click to browse</strong>
+      Trim, stack clips, add text and music, and export reels-ready video.
+      <div class="hint">MP4 · MOV · WEBM &nbsp;·&nbsp; Add multiple clips — they play in order</div>
+    </div>
+    <input type="file" id="vd-file" accept="video/*" multiple class="hidden">
+  </div>
+
+  <div class="workspace hidden" id="vd-workspace">
+    <div>
+      <div class="stage"><canvas id="vd-canvas"></canvas></div>
+      <div class="transport">
+        <button class="btn small" id="vd-play">▶ Play</button>
+        <input type="range" id="vid-scrub" min="0" max="1000" value="0">
+        <span class="time" id="vd-time">0:00 / 0:00</span>
+        <button class="btn small" id="vd-frame">📸 Capture frame</button>
+        <button class="btn small" id="vd-frame-edit">🖌 Edit frame as photo</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn small" id="vd-add">＋ Add clips</button>
+        <button class="btn small danger" id="vd-clear">Start over</button>
+      </div>
+    </div>
+
+    <div class="tools">
+      <details class="tool" open>
+        <summary>🎞 Clips</summary>
+        <div class="tool-body" id="vd-clips"></div>
+      </details>
+
+      <details class="tool">
+        <summary>📐 Frame &amp; fit</summary>
+        <div class="tool-body">
+          <div class="chips" id="vd-aspects"></div>
+          <div class="field"><label for="vd-fit">Fill mode</label>
+            <select id="vd-fit"><option value="cover" selected>Fill the frame (crop edges)</option><option value="contain">Fit inside (letterbox)</option></select></div>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>🎛 Color</summary>
+        <div class="tool-body">
+          <div class="chips" id="vd-presets"></div>
+          <div id="vd-sliders"></div>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>🔤 Text &amp; captions</summary>
+        <div class="tool-body">
+          <button class="btn small" id="vd-add-text">＋ Add text</button>
+          <div class="field"><label for="vd-captions-script">Auto captions — paste your script</label>
+            <textarea id="vd-captions-script" placeholder="Paste what you say in the video and it gets split into timed caption cards across the timeline…"></textarea></div>
+          <div class="row">
+            <button class="btn small primary" id="vd-captions-btn">⚡ Generate caption cards</button>
+            <button class="btn small danger" id="vd-captions-clear">Clear all text</button>
+          </div>
+          <div id="vd-text-layers" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>🎵 Music &amp; audio</summary>
+        <div class="tool-body">
+          <div class="row">
+            <button class="btn small" id="vd-music-add">＋ Add music file</button>
+            <input type="file" id="vd-music-file" accept="audio/*" class="hidden">
+            <span class="note" id="vd-music-name">No track loaded</span>
+          </div>
+          <div class="slider-row"><label for="vd-music-vol">Music vol</label><input type="range" id="vd-music-vol" min="0" max="100" value="35"><output id="vd-music-vol-val">35%</output></div>
+          <div class="row">
+            <label class="note" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="vd-music-fade" checked> Fade in/out</label>
+            <label class="note" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="vd-mute-clips"> Mute clip audio</label>
+          </div>
+          <p class="note">Find licensed tracks in the 🎵 Music tab. For Reels, trending audio added inside Instagram usually reaches further.</p>
+          <hr style="border:none;border-top:1px solid var(--line)">
+          <div class="row">
+            <button class="btn small" id="vd-vo-rec">🎙 Record voiceover</button>
+            <span class="note" id="vd-vo-name">No voiceover yet</span>
+            <button class="btn small danger" id="vd-vo-del">✕</button>
+          </div>
+          <div class="slider-row"><label for="vd-vo-vol">Voice vol</label><input type="range" id="vd-vo-vol" min="0" max="100" value="100"><output id="vd-vo-vol-val">100%</output></div>
+          <p class="note">Recording plays the timeline while you narrate — wear headphones to avoid echo.</p>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>💎 Watermark &amp; overlays</summary>
+        <div class="tool-body">
+          <label class="note" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="vd-logo-on"> Show GEM logo (bottom right)</label>
+          <button class="btn small" id="vd-add-overlay">🖼 Add image overlay (badge, headshot…)</button>
+          <div id="vd-overlays" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </details>
+
+      <details class="tool" open>
+        <summary>⬇️ Export</summary>
+        <div class="tool-body">
+          <div class="field"><label for="vd-exp-res">Resolution</label>
+            <select id="vd-exp-res"><option value="1080" selected>1080p</option><option value="720">720p</option></select></div>
+          <button class="btn primary" id="vd-export">⬇ Export video</button>
+          <div class="progress hidden" id="vd-exp-prog"><div></div></div>
+          <p class="note" id="vd-exp-note">Rendering plays the video once in real time while recording — keep this tab open. Format is picked automatically (MP4 where the browser supports it, WebM otherwise).</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</main>
+
+<!-- ============ MUSIC ============ -->
+<main class="wrap mode-panel" id="mode-music">
+  <div class="banner">
+    <strong>How music licensing actually works:</strong> no editor — this one, CapCut, or Premiere — can legally bake Spotify songs into your exported videos; streaming catalogs are DRM-protected. The professional playbook: <strong>1)</strong> export your video clean, then add <em>trending audio inside the Instagram app</em> (your reel joins that audio's discovery page — more reach), or <strong>2)</strong> bake in a licensed / royalty-free track below for YouTube, your website, and ads.
+  </div>
+
+  <h2 class="sec">🎧 Use Spotify for inspiration</h2>
+  <div class="card" style="max-width:640px">
+    <h3>Find the sound, save the idea</h3>
+    <p>Search Spotify to find the vibe, save it to your shortlist here, then find that track (or its trending equivalent) in Instagram's audio library when you post.</p>
+    <div class="row">
+      <input type="text" id="sp-q" placeholder="Search Spotify… e.g. upbeat indie morning" style="flex:1;min-width:180px;background:var(--navy-2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 12px;font-size:.86rem">
+      <button class="btn primary" id="sp-go">Search on Spotify ↗</button>
+    </div>
+    <div class="row">
+      <input type="text" id="sp-save" placeholder="Track name — artist (to save to shortlist)" style="flex:1;min-width:180px;background:var(--navy-2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 12px;font-size:.86rem">
+      <button class="btn" id="sp-add">＋ Save idea</button>
+    </div>
+    <div id="sp-list" style="display:flex;flex-direction:column;gap:6px"></div>
+  </div>
+
+  <h2 class="sec">🎼 Royalty-free music you can bake in</h2>
+  <div class="cards">
+    <div class="card"><h3>YouTube Audio Library</h3><p>Free tracks, clear licensing, safe on every platform. The workhorse.</p><a href="https://studio.youtube.com/channel/UC/music" target="_blank" rel="noopener">Open library ↗</a></div>
+    <div class="card"><h3>Pixabay Music</h3><p>Free for commercial use, no attribution required. Great cinematic beds for listing videos.</p><a href="https://pixabay.com/music/" target="_blank" rel="noopener">Browse tracks ↗</a></div>
+    <div class="card"><h3>Uppbeat</h3><p>Free tier with credits; built for creators. Modern, trendy sounds.</p><a href="https://uppbeat.io" target="_blank" rel="noopener">Browse tracks ↗</a></div>
+    <div class="card"><h3>Instagram trending audio</h3><p>Inside the IG app: create Reel → Audio → browse trending (↗ arrow icon = trending). Best for reach.</p><a href="https://www.instagram.com" target="_blank" rel="noopener">Open Instagram ↗</a></div>
+  </div>
+
+  <h2 class="sec">🎙 Your audio files</h2>
+  <div class="card" style="max-width:640px">
+    <h3>Load a track into the video editor</h3>
+    <p>Downloaded a licensed track or recorded a voiceover? Load it here and it's ready in the Video tab's Music panel.</p>
+    <div class="row">
+      <button class="btn primary" id="mu-load">＋ Load audio file</button>
+      <span class="note" id="mu-loaded">Nothing loaded yet</span>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/compliance.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/editor.js"></script>
+</body>
+</html>
