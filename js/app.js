@@ -10,7 +10,7 @@
   /* ---------------- Settings ---------------- */
   const DEFAULT_SETTINGS = {
     name: "Megan Sawamura", nmls: "972639", companyNmls: "330511", states: "CA",
-    handle: "@gemhometeam", phone: "", email: "", city: "San Diego"
+    handle: "@gemhometeam", phone: "", email: "", city: "San Diego", apiKey: ""
   };
 
   GEM.getSettings = function () {
@@ -96,6 +96,19 @@
     );
   }
 
+  /* ---------------- Posted tracking ---------------- */
+  function dateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+  function getPosted() {
+    try { return JSON.parse(localStorage.getItem("gem-posted") || "{}"); } catch (e) { return {}; }
+  }
+  function togglePosted(key) {
+    const all = getPosted();
+    if (all[key]) delete all[key]; else all[key] = true;
+    localStorage.setItem("gem-posted", JSON.stringify(all));
+  }
+
   /* ---------------- Calendar ---------------- */
   let calYear, calMonth; // current view
 
@@ -169,6 +182,19 @@
         cell.appendChild(chip);
         cell.appendChild(title);
         cell.classList.add("has-post");
+        const key = dateKey(d);
+        if (getPosted()[key]) cell.classList.add("posted");
+        const check = document.createElement("button");
+        check.className = "post-check";
+        check.title = "Mark as posted";
+        check.textContent = "✓";
+        check.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          togglePosted(key);
+          renderCalendar();
+          renderDashboard();
+        });
+        cell.appendChild(check);
         cell.addEventListener("click", () => openStudioWithTopic(plan.topic.id));
       }
       grid.appendChild(cell);
@@ -291,6 +317,37 @@
     $("#out-copy-caption").onclick = (e) => copyText(caption, e.target);
     $("#out-copy-tags").onclick = (e) => copyText(tags, e.target);
     $("#out-copy-footer").onclick = (e) => copyText(footer, e.target);
+
+    // AI fresh take
+    const aiNote = $("#out-ai-note");
+    aiNote.classList.add("hidden");
+    $("#out-ai").onclick = async (e) => {
+      const btn = e.target;
+      btn.disabled = true;
+      const old = btn.textContent;
+      btn.textContent = "✨ Writing…";
+      aiNote.classList.add("hidden");
+      try {
+        const aiText = await GEM.aiGenerate(
+          `Write a fresh Instagram caption for GEM Home Team on this topic: "${t.title}".\n\nThe existing caption below covers the right substance — write a NEW take with a different hook and structure, same facts, same compliance discipline. End with the same DM keyword CTA. After the caption, add one line of 15-20 relevant hashtags starting with #GemHomeTeam.\n\nEXISTING CAPTION:\n${caption}`
+        );
+        const aiFull = aiText + "\n\n" + footer;
+        $("#out-caption").textContent = aiText;
+        const check = GEM.checkCompliance(aiFull);
+        const badge = $("#out-compliance");
+        badge.className = "comp-badge " + check.status;
+        badge.textContent = check.status === "pass" ? "✅ Compliance check passed (AI version)"
+          : check.status === "warn" ? "⚠️ Review AI version: " + check.findings.map(f => f.label).join("; ")
+          : "⛔ AI version needs fixes: " + check.findings.map(f => f.label).join("; ");
+        $("#out-copy-caption").onclick = (ev) => copyText(aiText, ev.target);
+        $("#out-copy-full").onclick = (ev) => copyText(aiFull, ev.target);
+      } catch (err) {
+        aiNote.textContent = err.message;
+        aiNote.classList.remove("hidden");
+      }
+      btn.disabled = false;
+      btn.textContent = old;
+    };
   }
 
   function shuffleTopic() {
@@ -319,6 +376,41 @@
     });
     renderApFields(GEM.autopilot[0]);
     $("#ap-generate").addEventListener("click", runAutopilot);
+
+    $("#ap-ai").addEventListener("click", async (e) => {
+      const note = $("#ap-ai-note");
+      note.classList.add("hidden");
+      if (!apLast) { runAutopilot(); }
+      if (!apLast) {
+        note.textContent = "Fill in the fields and hit Generate first — then AI can write a fresh version from those facts.";
+        note.classList.remove("hidden");
+        return;
+      }
+      const btn = e.target;
+      btn.disabled = true;
+      const old = btn.textContent;
+      btn.textContent = "✨ Writing…";
+      try {
+        const facts = apLast.ap.fields.map(f => `${f.label}: ${apLast.values[f.key] || "(not provided)"}`).join("\n");
+        const aiText = await GEM.aiGenerate(
+          `Write a fresh Instagram caption for GEM Home Team. Post type: ${apLast.ap.label}.\n\nFACTS (use exactly these — do not invent numbers or details):\n${facts}\n\nWrite a scroll-stopping hook, a warm professional body, one clear DM-keyword CTA, then one line of 15-20 relevant hashtags starting with #GemHomeTeam.`
+        );
+        const aiFull = aiText + "\n\n" + GEM.buildDisclaimer();
+        $("#ap-caption").textContent = aiFull;
+        const check = GEM.checkCompliance(aiFull);
+        const badge = $("#ap-compliance");
+        badge.className = "comp-badge " + check.status;
+        badge.textContent = check.status === "pass" ? "✅ Compliance check passed (AI version)"
+          : check.status === "warn" ? "⚠️ Review: " + check.findings.map(f => f.label).join("; ")
+          : "⛔ Fix before posting: " + check.findings.map(f => f.label).join("; ");
+        $("#ap-copy-caption").onclick = (ev) => copyText(aiFull, ev.target);
+      } catch (err) {
+        note.textContent = err.message;
+        note.classList.remove("hidden");
+      }
+      btn.disabled = false;
+      btn.textContent = old;
+    });
   }
 
   function renderApFields(ap) {
@@ -332,6 +424,8 @@
           : `<input id="ap-${f.key}" type="${f.type || "text"}" placeholder="${f.placeholder}">`}
       </div>`).join("");
   }
+
+  let apLast = null;
 
   function runAutopilot() {
     const ap = apCurrent;
@@ -355,6 +449,7 @@
     }
 
     const result = ap.build(values, prev);
+    apLast = { ap, values, result };
     $("#ap-output").classList.remove("hidden");
     $("#ap-onimage").textContent = result.onImage;
     $("#ap-caption").textContent = result.caption;
@@ -549,6 +644,20 @@
       `<div class="tool-card"><strong>${t.name}</strong><span>${t.use}</span></div>`).join("");
   }
 
+  function exportManyChatPack() {
+    const lines = [
+      "GEM HOME TEAM — MANYCHAT KEYWORD PACK",
+      "Setup: manychat.com → connect Instagram → Automation → New Automation →",
+      "trigger: 'User sends a message containing keyword' → paste the keyword and reply below.",
+      "Replace [APPLICATION LINK] / [CALENDAR LINK] / [Review link] with your real URLs first.",
+      "=".repeat(60), ""
+    ];
+    GEM.dmKeywords.forEach(k => {
+      lines.push(`KEYWORD: ${k.keyword}`, `WHEN: ${k.trigger}`, "REPLY:", k.reply, "", "-".repeat(60), "");
+    });
+    download("gem-manychat-keywords.txt", lines.join("\n"));
+  }
+
   function exportBufferCSV() {
     // Buffer/Later-compatible: text + date columns for the current + next month
     const rows = [["text", "date"]];
@@ -661,6 +770,69 @@
     renderKpis();
   }
 
+  /* ---------------- Instagram insights CSV import ---------------- */
+  function importInsightsCSV(file) {
+    const msg = $("#kpi-import-msg");
+    const fail = (text) => { msg.textContent = text; msg.classList.remove("hidden"); };
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const text = String(reader.result);
+        const delim = (text.split("\n")[0] || "").includes(";") ? ";" : ",";
+        const rows = text.split(/\r?\n/).map(l => l.split(delim).map(c => c.replace(/^"|"$/g, "").trim())).filter(r => r.length > 1);
+        // Find the header row: contains a date-ish column and a metric column
+        let headerIdx = -1, dateCol = -1, cols = {};
+        for (let i = 0; i < Math.min(rows.length, 10); i++) {
+          const lower = rows[i].map(c => c.toLowerCase());
+          const d = lower.findIndex(c => /date|day|time/.test(c));
+          const hasMetric = lower.some(c => /follow|reach|impress|view/.test(c));
+          if (d >= 0 && hasMetric) {
+            headerIdx = i; dateCol = d;
+            lower.forEach((c, j) => {
+              if (/follow/.test(c) && cols.followers === undefined) cols.followers = j;
+              if (/reach|impress|view/.test(c) && cols.reach === undefined) cols.reach = j;
+            });
+            break;
+          }
+        }
+        if (headerIdx < 0) return fail("Couldn't find the data in that file. Export from Meta Business Suite → Insights → Export data (CSV) — it needs a date column plus a followers or reach column.");
+
+        const months = {}; // month -> {followers: last value, reach: sum}
+        for (let i = headerIdx + 1; i < rows.length; i++) {
+          const d = new Date(rows[i][dateCol]);
+          if (isNaN(d.getTime())) continue;
+          const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+          months[month] = months[month] || { reach: 0 };
+          if (cols.followers !== undefined) {
+            const v = parseFloat(String(rows[i][cols.followers]).replace(/[,\s]/g, ""));
+            if (!isNaN(v)) months[month].followers = v; // last value in the month wins
+          }
+          if (cols.reach !== undefined) {
+            const v = parseFloat(String(rows[i][cols.reach]).replace(/[,\s]/g, ""));
+            if (!isNaN(v)) months[month].reach += v;
+          }
+        }
+        const monthKeys = Object.keys(months);
+        if (!monthKeys.length) return fail("Found the columns but no readable rows of data.");
+
+        const all = getKpis();
+        monthKeys.forEach(m => {
+          let entry = all.find(r => r.month === m);
+          if (!entry) { entry = { month: m }; all.push(entry); }
+          if (months[m].followers !== undefined) entry.followers = Math.round(months[m].followers);
+          if (months[m].reach) entry.reach = Math.round(months[m].reach);
+        });
+        localStorage.setItem("gem-kpis", JSON.stringify(all));
+        renderKpis();
+        msg.textContent = `✅ Imported ${monthKeys.length} month${monthKeys.length > 1 ? "s" : ""} of Instagram data (${Object.keys(cols).join(" + ")}). Leads, calls, applications, and closings stay yours to log — that's the money side only you can see.`;
+        msg.classList.remove("hidden");
+      } catch (e) {
+        fail("That file couldn't be parsed: " + e.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
   /* ---------------- Integrations & Report Card ---------------- */
   function getChecks(key) {
     try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) { return {}; }
@@ -768,10 +940,17 @@
     const todayEl = $("#dash-today");
     if (plan) {
       const pillar = GEM.pillars[plan.pillar];
+      const posted = getPosted();
+      let streak = 0;
+      for (let i = 1; i <= 7; i++) {
+        const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+        if (posted[dateKey(d)]) streak++;
+      }
       todayEl.innerHTML = `
         <div class="today-chip" style="--chip:${pillar.color}">${pillar.icon} ${pillar.label} · ${FORMAT_ICONS[plan.format]} ${plan.format} · post at ${plan.time}</div>
         <h3>${plan.topic.title}</h3>
         <p>${plan.note}</p>
+        <p style="color:var(--gold);font-size:.84rem;margin-bottom:14px">🔥 ${streak} of your last 7 days marked posted${posted[dateKey(today)] ? " · today is ✓ done" : ""}</p>
         <button class="btn primary" id="dash-open-today">Generate this post →</button>`;
       $("#dash-open-today").addEventListener("click", () => openStudioWithTopic(plan.topic.id));
     } else {
@@ -816,6 +995,7 @@
     $("#set-phone").value = s.phone;
     $("#set-email").value = s.email;
     $("#set-city").value = s.city;
+    $("#set-apikey").value = s.apiKey || "";
   }
 
   function saveSettingsForm() {
@@ -827,7 +1007,8 @@
       handle: $("#set-handle").value.trim(),
       phone: $("#set-phone").value.trim(),
       email: $("#set-email").value.trim(),
-      city: $("#set-city").value.trim()
+      city: $("#set-city").value.trim(),
+      apiKey: $("#set-apikey").value.trim()
     });
     const btn = $("#set-save");
     btn.textContent = "✓ Saved!";
@@ -851,10 +1032,16 @@
     $("#comp-run").addEventListener("click", runComplianceCheck);
     $("#comp-fix").addEventListener("click", applyAutoFix);
     $("#auto-export").addEventListener("click", exportBufferCSV);
+    $("#auto-manychat").addEventListener("click", exportManyChatPack);
     $("#set-save").addEventListener("click", saveSettingsForm);
     $("#dash-nudge-btn").addEventListener("click", () => switchTab("settings"));
 
     $("#kpi-save").addEventListener("click", saveKpis);
+    $("#kpi-import-btn").addEventListener("click", () => $("#kpi-import").click());
+    $("#kpi-import").addEventListener("change", (e) => {
+      if (e.target.files && e.target.files[0]) importInsightsCSV(e.target.files[0]);
+      e.target.value = "";
+    });
 
     renderDashboard();
     renderCalendar();

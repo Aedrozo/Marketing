@@ -1195,6 +1195,10 @@ GEM.dmKeywords = [
     reply: `Let's do it. ☕ I'm always up for meeting agents who take care of their clients.\n\nHere's my calendar — grab any 20-minute slot: [CALENDAR LINK]\n\nWorst case you get a good coffee and a reliable backup lender. Best case, we close a lot of deals together.` },
   { keyword: "CALL", trigger: "Strategy call booking",
     reply: `Perfect — here's my calendar, grab whatever time works: [CALENDAR LINK]\n\n15-20 minutes, zero pressure, no credit pull. You'll leave with actual next steps whether you're buying in 30 days or 2 years. 🎯` },
+  { keyword: "START", trigger: "NEO Tech Edge posts — fast approval interest",
+    reply: `Let's get you moving. 🚀 Our tech (Better's Tinman® platform) reads your docs and verifies income in minutes, not days.\n\nHere's your secure start link: [APPLICATION LINK]\n\nNothing hits your credit until you say go. Want a human walkthrough first? Reply CALL and I'll send my calendar.` },
+  { keyword: "WEALTH", trigger: "Mortgage-managed-for-life posts",
+    reply: `Love this mindset — closing day is day one. 🏦\n\nWe watch the market for every client and flag moves that make sense: equity opportunities, restructuring, the works. Send me your property address (or just say "renting for now") and I'll tell you exactly what the first step looks like for you.` },
   { keyword: "PROGRAMS", trigger: "Loan program questions",
     reply: `There are more ways to finance a home than most people think — FHA, VA, conventional, bank statement, DSCR, down payment assistance and more. 🧭\n\nThe right one depends on your income, goals, and timeline. Tell me a little about your situation (buying, refinancing, investing?) and I'll point you to the best-fit options.` }
 ];
@@ -1324,6 +1328,7 @@ GEM.baselineAudit = [
 /* ---------- KPI definitions ---------- */
 GEM.kpiFields = [
   { key: "followers", label: "IG Followers" },
+  { key: "reach", label: "Reach" },
   { key: "leads", label: "Leads (DMs/forms)" },
   { key: "calls", label: "Strategy calls" },
   { key: "apps", label: "Applications" },

@@ -187,6 +187,16 @@ body {
 .cal-cell.has-post:hover { border-color: var(--blue); }
 .cal-cell.today { border-color: var(--gold); }
 .cal-num { font-size: 0.74rem; font-weight: 700; color: var(--mist-dim); margin-bottom: 5px; }
+.cal-cell { position: relative; }
+.post-check {
+  position: absolute; top: 5px; right: 5px;
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--ink-2); color: var(--mist-dim);
+  font-size: 0.66rem; line-height: 1; cursor: pointer; padding: 0;
+}
+.post-check:hover { border-color: var(--green); color: var(--green); }
+.cal-cell.posted { border-color: var(--green); }
+.cal-cell.posted .post-check { background: var(--green); color: var(--ink); border-color: var(--green); }
 .cal-cell.today .cal-num { color: var(--gold); }
 .cal-chip {
   display: flex; align-items: center; gap: 5px;

@@ -82,7 +82,12 @@
       <span class="kicker">KPI tracker</span>
       <h3>Log these once a month — what gets measured gets grown</h3>
       <div class="form-grid" id="kpi-form"></div>
-      <div style="margin-top:14px"><button class="btn primary" id="kpi-save">Log this month</button></div>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn primary" id="kpi-save">Log this month</button>
+        <button class="btn" id="kpi-import-btn">Import Instagram insights CSV</button>
+        <input type="file" id="kpi-import" accept=".csv,text/csv" class="hidden">
+      </div>
+      <p class="footnote hidden" id="kpi-import-msg"></p>
       <div id="kpi-history"></div>
     </div>
   </section>
@@ -145,7 +150,8 @@
       <div class="block-head"><h4>Design direction</h4></div>
       <div class="copy-block" id="out-design"></div>
 
-      <div class="block-head"><h4></h4><button class="btn primary" id="out-copy-full">Copy complete post</button></div>
+      <div class="block-head"><h4></h4><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="out-ai">✨ AI: write a fresh take</button><button class="btn primary" id="out-copy-full">Copy complete post</button></div></div>
+      <p class="footnote hidden" id="out-ai-note"></p>
     </div>
   </section>
 
@@ -162,7 +168,8 @@
       <p class="footnote" style="margin-top:0">Pick the template type, enter the few facts only you know, and Autopilot writes the on-image text and the complete compliant caption. Paste the text into the template in Canva, copy the caption, post.</p>
       <div class="pillar-row" id="ap-types"></div>
       <div class="form-grid" id="ap-fields" style="margin-top:16px"></div>
-      <div style="margin-top:14px"><button class="btn primary" id="ap-generate">Generate everything</button></div>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" id="ap-generate">Generate everything</button><button class="btn" id="ap-ai">✨ AI: write it fresh</button></div>
+      <p class="footnote hidden" id="ap-ai-note"></p>
       <div id="ap-output" class="hidden">
         <div id="ap-compliance" class="comp-badge"></div>
         <div class="block-head"><h4>On-image text</h4><button class="btn small" id="ap-copy-image">Copy</button></div>
@@ -394,8 +401,9 @@
           <li><strong>Daily (10 min):</strong> run the story playbook, reply to comments and DMs. This is the one thing automation should never do — relationships are the product.</li>
           <li><strong>Monthly (15 min):</strong> swap in fresh client stories and market numbers, check analytics, double down on what worked.</li>
         </ol>
-        <div style="margin-top:18px">
+        <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn primary" id="auto-export">Export next 2 months for bulk import (CSV)</button>
+          <button class="btn" id="auto-manychat">Download ManyChat keyword pack</button>
         </div>
       </div>
     </div>
@@ -424,7 +432,9 @@
         <div class="field"><label for="set-city">City / market</label><input id="set-city" placeholder="San Diego"></div>
         <div class="field"><label for="set-phone">Phone</label><input id="set-phone" placeholder="(555) 555-5555"></div>
         <div class="field"><label for="set-email">Email</label><input id="set-email" placeholder="you@example.com"></div>
+        <div class="field" style="grid-column:1/-1"><label for="set-apikey">Claude API key (optional — unlocks AI writing)</label><input id="set-apikey" type="password" placeholder="sk-ant-..."></div>
       </div>
+      <p class="footnote">AI writing: create a key at console.anthropic.com, paste it here, and the ✨ buttons in Content Studio and Template Autopilot will write unlimited fresh, compliance-checked copy in your brand voice. The key is stored only in this browser and sent only to Anthropic; usage bills to your key (a typical caption costs about a cent).</p>
       <div style="margin-top:18px"><button class="btn primary" id="set-save">Save settings</button></div>
       <p class="footnote">Compliance disclaimer: the Compliance Center is an automated guardrail based on common NMLS, Reg Z, Reg N, and UDAAP advertising standards. It is not legal advice, and it does not replace review by your company's compliance department. State requirements vary — confirm your state-specific advertising rules with compliance.</p>
     </div>
@@ -434,6 +444,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/compliance.js"></script>
+<script src="js/ai.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
