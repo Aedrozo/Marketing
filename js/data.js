@@ -1039,10 +1039,10 @@ This is not a commitment to lend. All loans subject to credit approval, underwri
 
 /* ---------- Canva Templates (in your Canva account) ---------- */
 GEM.canvaTemplates = [
-  { name: "Just Closed — celebration post", url: "https://www.canva.com/d/oLMubFz42AQBH5a", use: "Swap in the property photo, address, and your headshot for every closing" },
-  { name: "Client Testimonial spotlight", url: "https://www.canva.com/d/RMce03x3LA6ZTgf", use: "Paste the client's verbatim review (with permission) and their first name" },
-  { name: "San Diego Market Update", url: "https://www.canva.com/d/qz6HF6RTcGZL7PG", use: "Update the three stats monthly — median price, days on market, listings" },
-  { name: "Loan Programs, Explained", url: "https://www.canva.com/d/_E2FJkrNR574e-5", use: "Evergreen educational post — pairs with the loan programs caption in Content Studio" }
+  { name: "Just Closed — signature card", url: "https://www.canva.com/d/1V9CgDMOWqPcy1K", use: "Split layout: swap in the property photo and closing details for every closing" },
+  { name: "Client Testimonial — signature card", url: "https://www.canva.com/d/fyhCABXf_aRYfdF", use: "Paste the client's verbatim review (with permission) and their first name" },
+  { name: "San Diego Market Update — signature card", url: "https://www.canva.com/d/UsFRdR7p-nidDim", use: "Update the three stats monthly — median price, days on market, listings" },
+  { name: "Loan Programs — signature card", url: "https://www.canva.com/d/mserdoh_q37SONk", use: "Evergreen educational post — pairs with the loan programs caption in Content Studio" }
 ];
 GEM.canvaFolder = "https://www.canva.com/folder/FAHRfYDqxyQ";
 
