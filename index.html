@@ -155,6 +155,24 @@
       <h2>Ready-to-Post Library</h2>
       <p>Your finished graphics, organized by series. Click any graphic to open it full size, save it, and post — pair it with the matching caption from Content Studio for a complete, compliant post.</p>
     </div>
+
+    <div class="card">
+      <span class="kicker">Template Autopilot</span>
+      <h3>Fill in the blanks — everything else is generated</h3>
+      <p class="footnote" style="margin-top:0">Pick the template type, enter the few facts only you know, and Autopilot writes the on-image text and the complete compliant caption. Paste the text into the template in Canva, copy the caption, post.</p>
+      <div class="pillar-row" id="ap-types"></div>
+      <div class="form-grid" id="ap-fields" style="margin-top:16px"></div>
+      <div style="margin-top:14px"><button class="btn primary" id="ap-generate">Generate everything</button></div>
+      <div id="ap-output" class="hidden">
+        <div id="ap-compliance" class="comp-badge"></div>
+        <div class="block-head"><h4>On-image text</h4><button class="btn small" id="ap-copy-image">Copy</button></div>
+        <div class="copy-block" id="ap-onimage"></div>
+        <div class="block-head"><h4>Complete caption</h4><button class="btn small" id="ap-copy-caption">Copy</button></div>
+        <div class="copy-block" id="ap-caption"></div>
+        <p class="footnote" id="ap-note"></p>
+      </div>
+    </div>
+
     <div id="library-groups"></div>
   </section>
 

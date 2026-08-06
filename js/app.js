@@ -298,6 +298,80 @@
     openStudioWithTopic(t.id);
   }
 
+  /* ---------------- Template Autopilot ---------------- */
+  let apCurrent = null;
+
+  function renderAutopilot() {
+    const types = $("#ap-types");
+    if (!types || !GEM.autopilot) return;
+    types.innerHTML = "";
+    GEM.autopilot.forEach((ap, i) => {
+      const b = document.createElement("button");
+      b.className = "pillar-btn" + (i === 0 ? " active" : "");
+      b.style.setProperty("--pc", "#45B6E8");
+      b.textContent = ap.label;
+      b.addEventListener("click", () => {
+        $$(".pillar-btn", types).forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        renderApFields(ap);
+      });
+      types.appendChild(b);
+    });
+    renderApFields(GEM.autopilot[0]);
+    $("#ap-generate").addEventListener("click", runAutopilot);
+  }
+
+  function renderApFields(ap) {
+    apCurrent = ap;
+    $("#ap-output").classList.add("hidden");
+    $("#ap-fields").innerHTML = ap.fields.map(f =>
+      `<div class="field" ${f.type === "textarea" ? 'style="grid-column:1/-1"' : ""}>
+        <label for="ap-${f.key}">${f.label}</label>
+        ${f.type === "textarea"
+          ? `<textarea id="ap-${f.key}" rows="4" placeholder="${f.placeholder}"></textarea>`
+          : `<input id="ap-${f.key}" type="${f.type || "text"}" placeholder="${f.placeholder}">`}
+      </div>`).join("");
+  }
+
+  function runAutopilot() {
+    const ap = apCurrent;
+    if (!ap) return;
+    const values = {};
+    let missing = false;
+    ap.fields.forEach(f => {
+      const el = $("#ap-" + f.key);
+      values[f.key] = el.value.trim();
+      const optional = /optional|leave blank/i.test(f.label);
+      if (!values[f.key] && !optional) { el.style.borderColor = "var(--red)"; missing = true; }
+      else el.style.borderColor = "";
+    });
+    if (missing) return;
+
+    // Market autopilot: load previous stats, then save current for next month
+    let prev = null;
+    if (ap.id === "ap-market") {
+      try { prev = JSON.parse(localStorage.getItem("gem-market-prev") || "null"); } catch (e) {}
+      localStorage.setItem("gem-market-prev", JSON.stringify(values));
+    }
+
+    const result = ap.build(values, prev);
+    $("#ap-output").classList.remove("hidden");
+    $("#ap-onimage").textContent = result.onImage;
+    $("#ap-caption").textContent = result.caption;
+    $("#ap-note").textContent = result.note || "";
+
+    const check = GEM.checkCompliance(result.caption);
+    const badge = $("#ap-compliance");
+    badge.className = "comp-badge " + check.status;
+    badge.textContent = check.status === "pass" ? "✅ Compliance check passed"
+      : check.status === "warn" ? "⚠️ Review: " + check.findings.map(f => f.label).join("; ")
+      : "⛔ Fix before posting: " + check.findings.map(f => f.label).join("; ");
+
+    $("#ap-copy-image").onclick = (e) => copyText(result.onImage, e.target);
+    $("#ap-copy-caption").onclick = (e) => copyText(result.caption, e.target);
+    $("#ap-output").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
   /* ---------------- Ready-to-Post Library ---------------- */
   function renderLibrary() {
     const wrap = $("#library-groups");
@@ -785,6 +859,7 @@
     renderDashboard();
     renderCalendar();
     renderPillarButtons();
+    renderAutopilot();
     renderLibrary();
     renderReels();
     renderLeads();

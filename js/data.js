@@ -1068,6 +1068,108 @@ GEM.library = [
   ]}
 ];
 
+/* ---------- Template Autopilot: generates everything that changes on a template ---------- */
+GEM.tagJoin = (keys) => {
+  const tags = [];
+  (keys || []).forEach(k => { if (GEM.hashtags[k]) tags.push(...GEM.hashtags[k].tags); });
+  return [...new Set(tags)].slice(0, 25).join(" ");
+};
+
+GEM.autopilot = [
+  {
+    id: "ap-market", label: "Market Update", template: "02-market-sandiego.png",
+    fields: [
+      { key: "median", label: "Median home price ($)", type: "number", placeholder: "925000" },
+      { key: "dom", label: "Days on market", type: "number", placeholder: "18" },
+      { key: "listings", label: "Active listings", type: "number", placeholder: "2400" }
+    ],
+    build(v, prev) {
+      const fmt = n => "$" + Number(n).toLocaleString();
+      const trend = (cur, old, upGood) => {
+        if (!old || !cur) return null;
+        const pct = ((cur - old) / old * 100);
+        if (Math.abs(pct) < 0.5) return "held steady";
+        return (pct > 0 ? "up " : "down ") + Math.abs(pct).toFixed(1) + "%";
+      };
+      const tMedian = prev ? trend(+v.median, +prev.median) : null;
+      const tDom = prev ? trend(+v.dom, +prev.dom) : null;
+      const tList = prev ? trend(+v.listings, +prev.listings) : null;
+      const month = new Date().toLocaleString("en-US", { month: "long" });
+      const onImage = `SAN DIEGO MARKET UPDATE — ${month.toUpperCase()}\nMedian Home Price: ${fmt(v.median)}\nDays on Market: ${v.dom}\nActive Listings: ${Number(v.listings).toLocaleString()}`;
+      let analysis;
+      if (tMedian || tDom || tList) {
+        const parts = [];
+        if (tMedian) parts.push(`median price ${tMedian} from last month`);
+        if (tDom) parts.push(`homes are selling in ${v.dom} days (${tDom})`);
+        if (tList) parts.push(`inventory ${tList}`);
+        analysis = `📊 WHAT CHANGED\n${parts.join(", ").replace(/^./, c => c.toUpperCase())}.\n\n🏠 WHAT IT MEANS\n${+v.dom <= (prev ? +prev.dom : 30) ? "Well-priced homes are moving quickly — prepared buyers with real pre-approvals have the edge." : "Homes are sitting a little longer — buyers have more room to negotiate than the headlines suggest."} ${tList && tList.startsWith("up") ? "Rising inventory means more choice." : "Tight inventory keeps well-priced homes competitive."}`;
+      } else {
+        analysis = `📊 THE SNAPSHOT\nMedian price ${fmt(v.median)}, homes selling in about ${v.dom} days, ${Number(v.listings).toLocaleString()} active listings.\n\n🏠 WHAT IT MEANS\nEvery neighborhood tells its own story — these county-wide numbers are the starting point, not the answer for YOUR street.`;
+      }
+      const caption = `Your San Diego market minute — ${month} 🎯\n\n${analysis}\n\n⚠️ County numbers ≠ your neighborhood. Want to know what this means for your zip code and your budget? That's a 15-minute conversation.\n\n📲 DM me MARKET for updates tailored to your situation.\n\n${GEM.tagJoin(["core","market","local"])}\n\n${GEM.buildDisclaimer()}`;
+      return { onImage, caption, note: "Numbers save automatically — next month's post auto-writes the comparison. Sources: use your MLS or Redfin/SDAR data, and keep them current." };
+    }
+  },
+  {
+    id: "ap-openhouse", label: "Open House", template: "08-open-house-feature.png",
+    fields: [
+      { key: "address", label: "Property address", placeholder: "1234 Moonstone Ct, Carlsbad" },
+      { key: "datetime", label: "Date & time", placeholder: "Sat 11-2 & Sun 12-3" },
+      { key: "beds", label: "Beds", type: "number", placeholder: "4" },
+      { key: "baths", label: "Baths", type: "number", placeholder: "3" },
+      { key: "agent", label: "Hosting agent (name & brokerage)", placeholder: "Jane Smith · ABC Realty" }
+    ],
+    build(v) {
+      const onImage = `OPEN HOUSE\n${v.address}\n${v.datetime}\n${v.beds} BED · ${v.baths} BATH\nHosted by ${v.agent}`;
+      const caption = `OPEN HOUSE this weekend 🏡\n\n📍 ${v.address}\n🗓 ${v.datetime}\n🛏 ${v.beds} bed · 🛁 ${v.baths} bath\n\nHosted by ${v.agent} — and our team will make sure every "could I actually afford this?" question gets a real answer, not a guess.\n\nCan't make it in person? DM me OPEN and I'll send you the financing picture for this home before you tour anything.\n\n${GEM.tagJoin(["core","local","firstTimeBuyer"])}\n\n${GEM.buildDisclaimer()}`;
+      return { onImage, caption, note: "Co-marketing reminder: share costs fairly with the agent (RESPA). Tag the agent when posting." };
+    }
+  },
+  {
+    id: "ap-justclosed", label: "Just Closed", template: "Just Closed Canva template",
+    fields: [
+      { key: "area", label: "Property (address or neighborhood)", placeholder: "930 Peach Ave, El Cajon" },
+      { key: "clients", label: "Client first names (with permission — or leave blank)", placeholder: "The M. family" },
+      { key: "loan", label: "Loan type", placeholder: "Conventional" },
+      { key: "days", label: "Days to close", type: "number", placeholder: "21" }
+    ],
+    build(v) {
+      const who = v.clients ? `${v.clients}` : "another amazing client";
+      const onImage = `JUST CLOSED\n${v.area}\n${v.loan} · Closed in ${v.days} days`;
+      const caption = `KEYS. IN. HAND. 🔑\n\nHuge congratulations to ${who} on closing on ${v.area}!\n\n${v.loan} financing, closed in ${v.days} days — smooth from offer to keys, exactly how it should be.\n\nWatching someone walk in a buyer and walk out an OWNER never gets old. Thank you for trusting the GEM Home Team with one of the biggest moments of your life. 🥂\n\n${v.clients ? "(Shared with our clients' permission.)\n\n" : ""}🏡 Ready for your own key day? My DMs are open — let's talk about what it takes to get you there.\n\n${GEM.tagJoin(["core","motivation","local"])}\n\n${GEM.buildDisclaimer()}`;
+      return { onImage, caption, note: "Only name clients or show faces with written permission. Days-to-close claims must be accurate for this file." };
+    }
+  },
+  {
+    id: "ap-spotlight", label: "Agent Spotlight", template: "10-agent-spotlight.png",
+    fields: [
+      { key: "agent", label: "Agent name", placeholder: "Jane Smith" },
+      { key: "brokerage", label: "Brokerage", placeholder: "ABC Realty" },
+      { key: "known", label: "What they're known for", placeholder: "fierce negotiation and honest advice" },
+      { key: "deal", label: "A recent win together (optional)", placeholder: "got their buyers keys in 19 days" }
+    ],
+    build(v) {
+      const onImage = `AGENT SPOTLIGHT\n${v.agent}\n${v.brokerage}\nKnown for: ${v.known}`;
+      const caption = `Agents like this make every deal better. 🤝\n\nSpotlight on ${v.agent} of ${v.brokerage} — known for ${v.known}.${v.deal ? `\n\nMost recently we ${v.deal} — the kind of teamwork clients feel at the closing table.` : ""}\n\nGreat lending only works next to great representation. If you're buying or selling and need an agent who actually fights for you, ${v.agent} is the real deal.\n\n👉 Give them a follow, and tell them the GEM Home Team sent you.\n\n${GEM.tagJoin(["core","realtor","local"])}\n\n${GEM.buildDisclaimer()}`;
+      return { onImage, caption, note: "Tag the agent and their brokerage. Spotlights are relationship gold — post one every other Wednesday." };
+    }
+  },
+  {
+    id: "ap-testimonial", label: "Testimonial", template: "Client Testimonial Canva template",
+    fields: [
+      { key: "review", label: "Client review (verbatim)", type: "textarea", placeholder: "Paste the exact review text…" },
+      { key: "client", label: "Client name (first name + last initial)", placeholder: "Sarah M." },
+      { key: "source", label: "Where they left it", placeholder: "Google" }
+    ],
+    build(v) {
+      const short = v.review.length > 220 ? v.review.slice(0, 217).replace(/\s+\S*$/, "") + "…" : v.review;
+      const onImage = `★★★★★\n“${short}”\n— ${v.client}, Verified Client`;
+      const caption = `Reviews like this are why we exist. 🙏\n\n“${v.review}”\n— ${v.client}, via ${v.source}\n\nEvery family's situation is different, and every one deserves a lender who treats their loan like it's their own. That's the standard here, every single file.\n\n💬 Want the same experience? Let's start with a conversation — DM me or tap the link in bio.\n\n${GEM.tagJoin(["core","motivation"])}\n\n${GEM.buildDisclaimer()}`;
+      return { onImage, caption, note: "Keep the review verbatim and confirm permission to share. Long reviews: the on-image version is auto-trimmed; full text goes in the caption." };
+    }
+  }
+];
+
 /* ---------- Canva Templates (in your Canva account) ---------- */
 GEM.canvaTemplates = [
   { name: "Just Closed — signature card", url: "https://www.canva.com/d/1V9CgDMOWqPcy1K", use: "Split layout: swap in the property photo and closing details for every closing" },
