@@ -11,7 +11,7 @@
   /* Settings fallback (app.js isn't loaded on this page) */
   if (!GEM.getSettings) {
     const DEF = {
-      name: "Megan Sawamura", nmls: "972639", companyNmls: "330511", states: "CA",
+      name: "Anthony Edrozo", nmls: "2829800", companyNmls: "330511", states: "CA",
       handle: "@gemhometeam", phone: "", email: "", city: "San Diego", apiKey: ""
     };
     GEM.getSettings = function () {
@@ -1095,15 +1095,15 @@
         if (V.vo.srcNode) { try { V.vo.srcNode.disconnect(); } catch (e) {} }
         const url = URL.createObjectURL(blob);
         V.vo = { url, name: "voiceover", el: new Audio(url), vol: V.vo.vol, srcNode: null, gain: null };
-        $("#vd-vo-name").textContent = "🎙 Voiceover attached";
+        $("#vd-vo-name").textContent = "Voiceover attached";
         voRec = null;
-        btn.textContent = "🎙 Record voiceover";
+        btn.textContent = "Record voiceover";
         vdPause();
         toast("Voiceover attached to the timeline");
       };
       voRec = mr;
       mr.start();
-      btn.textContent = "⏹ Stop recording";
+      btn.textContent = "Stop recording";
       vdSeek(0);
       vdPlay();
       toast("Recording — narrate over the playback (headphones avoid echo)");
@@ -1260,8 +1260,8 @@
     const el = new Audio(url);
     el.loop = true;
     V.music = { url, name: file.name, el, vol: V.music.vol, fade: V.music.fade, srcNode: null, gain: null };
-    $("#vd-music-name").textContent = "🎵 " + file.name;
-    $("#mu-loaded").textContent = "🎵 " + file.name + " — ready in the Video tab";
+    $("#vd-music-name").textContent = file.name;
+    $("#mu-loaded").textContent = file.name + " — ready in the Video tab";
     toast("Track loaded into the video editor");
   }
 
@@ -1274,7 +1274,7 @@
       const row = document.createElement("div");
       row.className = "row";
       row.style.justifyContent = "space-between";
-      row.innerHTML = `<span class="note" style="color:var(--ink)">🎧 ${item}</span>
+      row.innerHTML = `<span class="note" style="color:var(--ink)">${item}</span>
         <span class="row">
           <a class="btn small" style="text-decoration:none" href="https://open.spotify.com/search/${encodeURIComponent(item)}" target="_blank" rel="noopener">Spotify ↗</a>
           <button class="btn small danger" data-i="${i}">✕</button>
@@ -1425,7 +1425,7 @@
         const div = document.createElement("div");
         div.className = "layer-item";
         div.innerHTML = `
-          <div class="note" style="color:var(--ink)">🖼 ${o.name}</div>
+          <div class="note" style="color:var(--ink)">${o.name}</div>
           <div class="slider-row"><label>Size</label><input type="range" data-k="scale" min="5" max="80" value="${Math.round(o.scale * 100)}"><output>${Math.round(o.scale * 100)}%</output></div>
           <div class="slider-row"><label>Opacity</label><input type="range" data-k="op" min="10" max="100" value="${o.op}"><output>${o.op}%</output></div>
           <button class="btn small danger">Remove</button>`;
@@ -1466,7 +1466,7 @@
         try {
           P.lut = parseCube(String(reader.result));
           P.lutName = f.name;
-          $("#ph-lut-name").textContent = "🎞 " + f.name;
+          $("#ph-lut-name").textContent = f.name;
           $("#ph-lut-controls").classList.remove("hidden");
           phRequestRender();
           toast("LUT applied");
@@ -1513,7 +1513,7 @@
       phSnapshot();
       Object.keys(adj).forEach(k => { if (k in DEF_ADJ && typeof adj[k] === "number") P.adj[k] = Math.round(adj[k]); });
       phSyncControls(); phRequestRender();
-      phAiOut("✨ Auto-grade applied: " + Object.keys(adj).map(k => `${k} ${adj[k] > 0 ? "+" : ""}${adj[k]}`).join(", ") + "\n\nFine-tune with the sliders, or Undo to go back.");
+      phAiOut("Auto-grade applied: " + Object.keys(adj).map(k => `${k} ${adj[k] > 0 ? "+" : ""}${adj[k]}`).join(", ") + "\n\nFine-tune with the sliders, or Undo to go back.");
     }));
     $("#ph-ai-caption").addEventListener("click", e => phAiRun(e.target, async () => {
       const text = await GEM.aiVision(
@@ -1646,7 +1646,7 @@
         const div = document.createElement("div");
         div.className = "layer-item";
         div.innerHTML = `
-          <div class="note" style="color:var(--ink)">🖼 ${o.name}</div>
+          <div class="note" style="color:var(--ink)">${o.name}</div>
           <div class="row">
             <div class="field" style="flex:1"><label>Position</label>
               <select data-k="pos">${[["tr", "Top right"], ["tl", "Top left"], ["br", "Bottom right"], ["bl", "Bottom left"], ["c", "Center"]].map(([v, l]) => `<option value="${v}"${o.pos === v ? " selected" : ""}>${l}</option>`).join("")}</select></div>

@@ -141,6 +141,10 @@
     padding: 10px 18px; border-radius: 999px; z-index: 90; opacity: 0; transition: opacity .2s; pointer-events: none;
   }
   .toast.show { opacity: 1; }
+
+  .top h1 { font-family: "Didot", "Bodoni MT", Georgia, "Times New Roman", serif; font-weight: 500; letter-spacing: .14em; }
+  h2.sec { font-family: "Didot", "Bodoni MT", Georgia, "Times New Roman", serif; font-weight: 500; letter-spacing: .02em; }
+  details.tool > summary { letter-spacing: .1em; text-transform: uppercase; font-size: .74rem; color: var(--mist, #B8D4E0); }
 </style>
 </head>
 <body>
@@ -155,9 +159,9 @@
     <div class="sub">Photo · Video · Music</div>
   </div>
   <nav class="modes" aria-label="Editor mode">
-    <button class="mode-btn active" data-mode="photo">📷 Photo</button>
-    <button class="mode-btn" data-mode="video">🎬 Video</button>
-    <button class="mode-btn" data-mode="music">🎵 Music</button>
+    <button class="mode-btn active" data-mode="photo">Photo</button>
+    <button class="mode-btn" data-mode="video">Video</button>
+    <button class="mode-btn" data-mode="music">Music</button>
   </nav>
   <a class="back" href="index.html">← Back to Marketing OS</a>
 </header>
@@ -166,7 +170,7 @@
 <main class="wrap mode-panel active" id="mode-photo">
   <div id="ph-empty">
     <div class="drop" id="ph-drop" tabindex="0" role="button" aria-label="Open a photo">
-      <strong>📷 Drop a photo here — or click to browse</strong>
+      <strong>Drop a photo here — or click to browse</strong>
       Edit listing shots, team photos, and client pics like a pro.
       <div class="hint">JPG · PNG · WEBP · HEIC-converted &nbsp;·&nbsp; You can also paste from the clipboard (Ctrl/Cmd+V)</div>
     </div>
@@ -177,26 +181,26 @@
     <div>
       <div class="stage"><canvas id="ph-canvas"></canvas></div>
       <div class="row" style="margin-top:10px">
-        <button class="btn small" id="ph-new">📂 New photo</button>
-        <button class="btn small" id="ph-undo">↩ Undo</button>
-        <button class="btn small" id="ph-compare">👁 Hold to compare</button>
+        <button class="btn small" id="ph-new">New photo</button>
+        <button class="btn small" id="ph-undo">Undo</button>
+        <button class="btn small" id="ph-compare">Hold to compare</button>
         <span class="note" id="ph-dims"></span>
       </div>
     </div>
 
     <div class="tools">
       <details class="tool" open id="tool-adjust">
-        <summary>🎛 Adjust</summary>
+        <summary>Adjust</summary>
         <div class="tool-body" id="ph-sliders"></div>
       </details>
 
       <details class="tool">
-        <summary>✨ Presets &amp; LUTs</summary>
+        <summary>Presets &amp; LUTs</summary>
         <div class="tool-body">
           <div class="chips" id="ph-presets"></div>
           <p class="note">Built for the GEM look — clean, editorial, never over-filtered.</p>
           <div class="row">
-            <button class="btn small" id="ph-lut-btn">🎞 Import LUT (.cube)</button>
+            <button class="btn small" id="ph-lut-btn">Import LUT (.cube)</button>
             <span class="note" id="ph-lut-name"></span>
           </div>
           <div class="hidden" id="ph-lut-controls">
@@ -208,7 +212,7 @@
       </details>
 
       <details class="tool">
-        <summary>✂️ Crop &amp; rotate</summary>
+        <summary>Crop &amp; rotate</summary>
         <div class="tool-body">
           <div class="chips" id="ph-aspects"></div>
           <div class="row">
@@ -230,26 +234,26 @@
       </details>
 
       <details class="tool">
-        <summary>🔤 Text</summary>
+        <summary>Text</summary>
         <div class="tool-body">
-          <button class="btn small" id="ph-add-text">＋ Add text layer</button>
+          <button class="btn small" id="ph-add-text">Add text layer</button>
           <div id="ph-text-layers" style="display:flex;flex-direction:column;gap:8px"></div>
           <p class="note">Drag text right on the image to position it.</p>
         </div>
       </details>
 
       <details class="tool">
-        <summary>🏷 Badges &amp; overlays</summary>
+        <summary>Badges &amp; overlays</summary>
         <div class="tool-body">
           <div class="chips" id="ph-badges"></div>
-          <button class="btn small" id="ph-add-overlay">🖼 Add image overlay (logo, headshot…)</button>
+          <button class="btn small" id="ph-add-overlay">Add image overlay (logo, headshot…)</button>
           <div id="ph-overlays" style="display:flex;flex-direction:column;gap:8px"></div>
           <p class="note">Drag badges and overlays right on the image to position them.</p>
         </div>
       </details>
 
       <details class="tool">
-        <summary>🖼 Frame &amp; border</summary>
+        <summary>Frame &amp; border</summary>
         <div class="tool-body">
           <div class="slider-row"><label for="ph-frame-pad">Border</label><input type="range" id="ph-frame-pad" min="0" max="15" value="0"><output id="ph-frame-pad-val">0%</output></div>
           <div class="swatches" id="ph-frame-colors">
@@ -264,7 +268,7 @@
       </details>
 
       <details class="tool">
-        <summary>💎 Logo &amp; watermark</summary>
+        <summary>Logo &amp; watermark</summary>
         <div class="tool-body">
           <div class="row">
             <label class="note" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="ph-logo-on"> Show GEM logo</label>
@@ -281,13 +285,13 @@
       </details>
 
       <details class="tool">
-        <summary>🤖 AI tools</summary>
+        <summary>AI tools</summary>
         <div class="tool-body">
           <div class="row">
-            <button class="btn small gold" id="ph-ai-grade">✨ AI auto-grade</button>
-            <button class="btn small" id="ph-ai-caption">📝 Write the caption</button>
-            <button class="btn small" id="ph-ai-alt">♿ Alt text</button>
-            <button class="btn small" id="ph-ai-critique">🎯 Coach this photo</button>
+            <button class="btn small gold" id="ph-ai-grade">AI auto-grade</button>
+            <button class="btn small" id="ph-ai-caption">Write the caption</button>
+            <button class="btn small" id="ph-ai-alt">Alt text</button>
+            <button class="btn small" id="ph-ai-critique">Coach this photo</button>
           </div>
           <div class="ai-out" id="ph-ai-out"></div>
           <div class="row hidden" id="ph-ai-copyrow"><button class="btn small primary" id="ph-ai-copy">Copy</button></div>
@@ -296,7 +300,7 @@
       </details>
 
       <details class="tool" open>
-        <summary>⬇️ Export</summary>
+        <summary>Export</summary>
         <div class="tool-body">
           <div class="field"><label for="ph-exp-size">Size</label>
             <select id="ph-exp-size">
@@ -308,7 +312,7 @@
             </select></div>
           <div class="field"><label for="ph-exp-fmt">Format</label>
             <select id="ph-exp-fmt"><option value="jpeg" selected>JPG (best for photos)</option><option value="png">PNG (graphics/text)</option></select></div>
-          <button class="btn primary" id="ph-export">⬇ Export photo</button>
+          <button class="btn primary" id="ph-export">Export photo</button>
           <p class="note">Exports render at full resolution with everything applied.</p>
         </div>
       </details>
@@ -320,7 +324,7 @@
 <main class="wrap mode-panel" id="mode-video">
   <div id="vd-empty">
     <div class="drop" id="vd-drop" tabindex="0" role="button" aria-label="Open video clips">
-      <strong>🎬 Drop video clips here — or click to browse</strong>
+      <strong>Drop video clips here — or click to browse</strong>
       Trim, stack clips, add text and music, and export reels-ready video.
       <div class="hint">MP4 · MOV · WEBM &nbsp;·&nbsp; Add multiple clips — they play in order</div>
     </div>
@@ -334,23 +338,23 @@
         <button class="btn small" id="vd-play">▶ Play</button>
         <input type="range" id="vid-scrub" min="0" max="1000" value="0">
         <span class="time" id="vd-time">0:00 / 0:00</span>
-        <button class="btn small" id="vd-frame">📸 Capture frame</button>
-        <button class="btn small" id="vd-frame-edit">🖌 Edit frame as photo</button>
+        <button class="btn small" id="vd-frame">Capture frame</button>
+        <button class="btn small" id="vd-frame-edit">Edit frame as photo</button>
       </div>
       <div class="row" style="margin-top:8px">
-        <button class="btn small" id="vd-add">＋ Add clips</button>
+        <button class="btn small" id="vd-add">Add clips</button>
         <button class="btn small danger" id="vd-clear">Start over</button>
       </div>
     </div>
 
     <div class="tools">
       <details class="tool" open>
-        <summary>🎞 Clips</summary>
+        <summary>Clips</summary>
         <div class="tool-body" id="vd-clips"></div>
       </details>
 
       <details class="tool">
-        <summary>📐 Frame &amp; fit</summary>
+        <summary>Frame &amp; fit</summary>
         <div class="tool-body">
           <div class="chips" id="vd-aspects"></div>
           <div class="field"><label for="vd-fit">Fill mode</label>
@@ -359,7 +363,7 @@
       </details>
 
       <details class="tool">
-        <summary>🎛 Color</summary>
+        <summary>Color</summary>
         <div class="tool-body">
           <div class="chips" id="vd-presets"></div>
           <div id="vd-sliders"></div>
@@ -367,13 +371,13 @@
       </details>
 
       <details class="tool">
-        <summary>🔤 Text &amp; captions</summary>
+        <summary>Text &amp; captions</summary>
         <div class="tool-body">
-          <button class="btn small" id="vd-add-text">＋ Add text</button>
+          <button class="btn small" id="vd-add-text">Add text</button>
           <div class="field"><label for="vd-captions-script">Auto captions — paste your script</label>
             <textarea id="vd-captions-script" placeholder="Paste what you say in the video and it gets split into timed caption cards across the timeline…"></textarea></div>
           <div class="row">
-            <button class="btn small primary" id="vd-captions-btn">⚡ Generate caption cards</button>
+            <button class="btn small primary" id="vd-captions-btn">Generate caption cards</button>
             <button class="btn small danger" id="vd-captions-clear">Clear all text</button>
           </div>
           <div id="vd-text-layers" style="display:flex;flex-direction:column;gap:8px"></div>
@@ -381,10 +385,10 @@
       </details>
 
       <details class="tool">
-        <summary>🎵 Music &amp; audio</summary>
+        <summary>Music &amp; audio</summary>
         <div class="tool-body">
           <div class="row">
-            <button class="btn small" id="vd-music-add">＋ Add music file</button>
+            <button class="btn small" id="vd-music-add">Add music file</button>
             <input type="file" id="vd-music-file" accept="audio/*" class="hidden">
             <span class="note" id="vd-music-name">No track loaded</span>
           </div>
@@ -393,10 +397,10 @@
             <label class="note" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="vd-music-fade" checked> Fade in/out</label>
             <label class="note" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="vd-mute-clips"> Mute clip audio</label>
           </div>
-          <p class="note">Find licensed tracks in the 🎵 Music tab. For Reels, trending audio added inside Instagram usually reaches further.</p>
+          <p class="note">Find licensed tracks in the Music tab. For Reels, trending audio added inside Instagram usually reaches further.</p>
           <hr style="border:none;border-top:1px solid var(--line)">
           <div class="row">
-            <button class="btn small" id="vd-vo-rec">🎙 Record voiceover</button>
+            <button class="btn small" id="vd-vo-rec">Record voiceover</button>
             <span class="note" id="vd-vo-name">No voiceover yet</span>
             <button class="btn small danger" id="vd-vo-del">✕</button>
           </div>
@@ -406,20 +410,20 @@
       </details>
 
       <details class="tool">
-        <summary>💎 Watermark &amp; overlays</summary>
+        <summary>Watermark &amp; overlays</summary>
         <div class="tool-body">
           <label class="note" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="vd-logo-on"> Show GEM logo (bottom right)</label>
-          <button class="btn small" id="vd-add-overlay">🖼 Add image overlay (badge, headshot…)</button>
+          <button class="btn small" id="vd-add-overlay">Add image overlay (badge, headshot…)</button>
           <div id="vd-overlays" style="display:flex;flex-direction:column;gap:8px"></div>
         </div>
       </details>
 
       <details class="tool" open>
-        <summary>⬇️ Export</summary>
+        <summary>Export</summary>
         <div class="tool-body">
           <div class="field"><label for="vd-exp-res">Resolution</label>
             <select id="vd-exp-res"><option value="1080" selected>1080p</option><option value="720">720p</option></select></div>
-          <button class="btn primary" id="vd-export">⬇ Export video</button>
+          <button class="btn primary" id="vd-export">Export video</button>
           <div class="progress hidden" id="vd-exp-prog"><div></div></div>
           <p class="note" id="vd-exp-note">Rendering plays the video once in real time while recording — keep this tab open. Format is picked automatically (MP4 where the browser supports it, WebM otherwise).</p>
         </div>
@@ -434,7 +438,7 @@
     <strong>How music licensing actually works:</strong> no editor — this one, CapCut, or Premiere — can legally bake Spotify songs into your exported videos; streaming catalogs are DRM-protected. The professional playbook: <strong>1)</strong> export your video clean, then add <em>trending audio inside the Instagram app</em> (your reel joins that audio's discovery page — more reach), or <strong>2)</strong> bake in a licensed / royalty-free track below for YouTube, your website, and ads.
   </div>
 
-  <h2 class="sec">🎧 Use Spotify for inspiration</h2>
+  <h2 class="sec">Use Spotify for inspiration</h2>
   <div class="card" style="max-width:640px">
     <h3>Find the sound, save the idea</h3>
     <p>Search Spotify to find the vibe, save it to your shortlist here, then find that track (or its trending equivalent) in Instagram's audio library when you post.</p>
@@ -444,12 +448,12 @@
     </div>
     <div class="row">
       <input type="text" id="sp-save" placeholder="Track name — artist (to save to shortlist)" style="flex:1;min-width:180px;background:var(--navy-2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 12px;font-size:.86rem">
-      <button class="btn" id="sp-add">＋ Save idea</button>
+      <button class="btn" id="sp-add">Save idea</button>
     </div>
     <div id="sp-list" style="display:flex;flex-direction:column;gap:6px"></div>
   </div>
 
-  <h2 class="sec">🎼 Royalty-free music you can bake in</h2>
+  <h2 class="sec">Royalty-free music you can bake in</h2>
   <div class="cards">
     <div class="card"><h3>YouTube Audio Library</h3><p>Free tracks, clear licensing, safe on every platform. The workhorse.</p><a href="https://studio.youtube.com/channel/UC/music" target="_blank" rel="noopener">Open library ↗</a></div>
     <div class="card"><h3>Pixabay Music</h3><p>Free for commercial use, no attribution required. Great cinematic beds for listing videos.</p><a href="https://pixabay.com/music/" target="_blank" rel="noopener">Browse tracks ↗</a></div>
@@ -457,12 +461,12 @@
     <div class="card"><h3>Instagram trending audio</h3><p>Inside the IG app: create Reel → Audio → browse trending (↗ arrow icon = trending). Best for reach.</p><a href="https://www.instagram.com" target="_blank" rel="noopener">Open Instagram ↗</a></div>
   </div>
 
-  <h2 class="sec">🎙 Your audio files</h2>
+  <h2 class="sec">Your audio files</h2>
   <div class="card" style="max-width:640px">
     <h3>Load a track into the video editor</h3>
     <p>Downloaded a licensed track or recorded a voiceover? Load it here and it's ready in the Video tab's Music panel.</p>
     <div class="row">
-      <button class="btn primary" id="mu-load">＋ Load audio file</button>
+      <button class="btn primary" id="mu-load">Load audio file</button>
       <span class="note" id="mu-loaded">Nothing loaded yet</span>
     </div>
   </div>

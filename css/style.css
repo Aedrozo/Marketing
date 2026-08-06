@@ -481,3 +481,45 @@ body {
 }
 .kpi-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); color: var(--mist); }
 .kpi-table td:first-child { color: var(--white); font-weight: 600; }
+
+/* ============================================================
+   EDITORIAL LUXE PASS
+   Serif display type, gold hairlines, restrained motion.
+   ============================================================ */
+:root {
+  --radius: 10px;
+  --font-display: "Didot", "Bodoni MT", "Playfair Display", Georgia, "Times New Roman", serif;
+}
+.panel.active { animation: none; }
+html { scroll-behavior: auto; }
+.logo-text h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: .16em;
+}
+.panel-head h2, #dash-greeting {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+.panel-head h2 { font-size: 1.75rem; }
+.panel-head h2::after {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 1px;
+  background: var(--gold);
+  margin-top: 12px;
+}
+.kicker { letter-spacing: .32em; font-size: .64rem; }
+.nav-item { letter-spacing: .05em; }
+.btn { letter-spacing: .02em; }
+.card h3, .tool-card h3 { letter-spacing: .01em; }
+
+.pillar-dot {
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+.week-chip { color: var(--chip); font-size: .7rem; }

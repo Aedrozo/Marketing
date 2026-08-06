@@ -9,7 +9,7 @@
 
   /* ---------------- Settings ---------------- */
   const DEFAULT_SETTINGS = {
-    name: "Megan Sawamura", nmls: "972639", companyNmls: "330511", states: "CA",
+    name: "Anthony Edrozo", nmls: "2829800", companyNmls: "330511", states: "CA",
     handle: "@gemhometeam", phone: "", email: "", city: "San Diego", apiKey: ""
   };
 
@@ -142,7 +142,7 @@
   }
 
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const FORMAT_ICONS = { Reel: "🎬", Carousel: "🖼️", Static: "📷", Story: "💬", Live: "🔴" };
+  const FORMAT_ICONS = { Reel: "", Carousel: "", Static: "", Story: "", Live: "" };
 
   function renderCalendar() {
     $("#cal-title").textContent = MONTHS[calMonth] + " " + calYear;
@@ -175,7 +175,7 @@
         const chip = document.createElement("div");
         chip.className = "cal-chip";
         chip.style.setProperty("--chip", pillar.color);
-        chip.innerHTML = `<span class="chip-fmt">${FORMAT_ICONS[plan.format] || ""}</span><span class="chip-label">${pillar.label}</span>`;
+        chip.innerHTML = `<span class="chip-label">${pillar.label}</span>`;
         const title = document.createElement("div");
         title.className = "cal-topic";
         title.textContent = plan.topic.title;
@@ -202,7 +202,7 @@
     // Legend
     const leg = $("#cal-legend");
     leg.innerHTML = Object.values(GEM.pillars).map(p =>
-      `<span class="legend-item"><span class="legend-dot" style="background:${p.color}"></span>${p.icon} ${p.label}</span>`
+      `<span class="legend-item"><span class="legend-dot" style="background:${p.color}"></span>${p.label}</span>`
     ).join("");
   }
 
@@ -229,7 +229,7 @@
       const b = document.createElement("button");
       b.className = "pillar-btn";
       b.style.setProperty("--pc", p.color);
-      b.innerHTML = `<span class="pillar-icon">${p.icon}</span><span>${p.label}</span>`;
+      b.innerHTML = `<span class="pillar-dot" style="background:${p.color}"></span><span>${p.label}</span>`;
       b.addEventListener("click", () => {
         $$(".pillar-btn", wrap).forEach(x => x.classList.remove("active"));
         b.classList.add("active");
@@ -245,7 +245,7 @@
     topicsForPillar(pillar).forEach(t => {
       const b = document.createElement("button");
       b.className = "topic-btn";
-      b.innerHTML = `<span class="topic-fmt">${FORMAT_ICONS[t.format] || ""} ${t.format}</span> ${t.title}`;
+      b.innerHTML = `<span class="topic-fmt">${t.format}</span> ${t.title}`;
       b.addEventListener("click", () => { renderStudioOutput(t); $$(".topic-btn", wrap).forEach(x=>x.classList.remove("active")); b.classList.add("active"); });
       wrap.appendChild(b);
     });
@@ -279,8 +279,8 @@
     if (!t) return;
     const pillar = GEM.pillars[t.pillar];
     $("#out-meta").innerHTML =
-      `<span class="badge" style="--chip:${pillar.color}">${pillar.icon} ${pillar.label}</span>
-       <span class="badge fmt">${FORMAT_ICONS[t.format]} ${t.format}</span>`;
+      `<span class="badge" style="--chip:${pillar.color}">${pillar.label}</span>
+       <span class="badge fmt">${t.format}</span>`;
     $("#out-title").textContent = t.title;
 
     // Hooks
@@ -926,7 +926,7 @@
   /* ---------------- Dashboard ---------------- */
   function renderDashboard() {
     const s = GEM.getSettings();
-    $("#dash-greeting").textContent = s.name ? `Welcome back, ${s.name.split(" ")[0]} 👋` : "Welcome to your Marketing OS 👋";
+    $("#dash-greeting").textContent = s.name ? `Welcome back, ${s.name.split(" ")[0]}` : "Welcome to your Marketing OS";
 
     // Setup nudge
     const nudge = $("#dash-nudge");
@@ -947,10 +947,10 @@
         if (posted[dateKey(d)]) streak++;
       }
       todayEl.innerHTML = `
-        <div class="today-chip" style="--chip:${pillar.color}">${pillar.icon} ${pillar.label} · ${FORMAT_ICONS[plan.format]} ${plan.format} · post at ${plan.time}</div>
+        <div class="today-chip" style="--chip:${pillar.color}">${pillar.label} · ${plan.format} · post at ${plan.time}</div>
         <h3>${plan.topic.title}</h3>
         <p>${plan.note}</p>
-        <p style="color:var(--gold);font-size:.84rem;margin-bottom:14px">🔥 ${streak} of your last 7 days marked posted${posted[dateKey(today)] ? " · today is ✓ done" : ""}</p>
+        <p style="color:var(--gold);font-size:.84rem;margin-bottom:14px">${streak} of your last 7 days marked posted${posted[dateKey(today)] ? " · today is done" : ""}</p>
         <button class="btn primary" id="dash-open-today">Generate this post →</button>`;
       $("#dash-open-today").addEventListener("click", () => openStudioWithTopic(plan.topic.id));
     } else {
@@ -966,8 +966,8 @@
       const pillar = GEM.pillars[p.pillar];
       html += `<button class="week-row" data-topic="${p.topic.id}">
         <span class="week-day">${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]} ${d.getDate()}</span>
-        <span class="week-chip" style="--chip:${pillar.color}">${pillar.icon}</span>
-        <span class="week-title">${FORMAT_ICONS[p.format]} ${p.topic.title}</span>
+        <span class="week-chip" style="--chip:${pillar.color}">●</span>
+        <span class="week-title">${p.topic.title}</span>
         <span class="week-time">${p.time}</span>
       </button>`;
     }
