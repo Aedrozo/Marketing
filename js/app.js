@@ -9,13 +9,16 @@
 
   /* ---------------- Settings ---------------- */
   const DEFAULT_SETTINGS = {
-    name: "", nmls: "", companyNmls: "330511", states: "CA",
+    name: "Megan Sawamura", nmls: "972639", companyNmls: "330511", states: "CA",
     handle: "@gemhometeam", phone: "", email: "", city: "San Diego"
   };
 
   GEM.getSettings = function () {
     try {
-      return Object.assign({}, DEFAULT_SETTINGS, JSON.parse(localStorage.getItem("gem-settings") || "{}"));
+      const saved = JSON.parse(localStorage.getItem("gem-settings") || "{}");
+      const merged = Object.assign({}, DEFAULT_SETTINGS);
+      Object.keys(saved).forEach(k => { if (saved[k] !== "" && saved[k] != null) merged[k] = saved[k]; });
+      return merged;
     } catch (e) { return Object.assign({}, DEFAULT_SETTINGS); }
   };
   GEM.saveSettings = function (s) {
