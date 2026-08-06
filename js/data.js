@@ -22,6 +22,21 @@ GEM.brand = {
   }
 };
 
+/* ---------- Team Roster (from gemhometeam.com / public profiles) ---------- */
+GEM.team = [
+  { name: "Megan Sawamura", role: "Producing Branch Manager", nmls: "972639" },
+  { name: "Anthony Edrozo", role: "Loan Officer", nmls: "" },
+  { name: "Sonny Alquizar", role: "Loan Officer", nmls: "960861" },
+  { name: "Camryn", role: "Team Member", nmls: "" },
+  { name: "Kevin", role: "Team Member", nmls: "" }
+];
+GEM.office = "662 Encinitas Blvd, Encinitas, CA · Serving San Diego County";
+GEM.links = {
+  website: "https://www.gemhometeam.com",
+  facebook: "https://www.facebook.com/GEMTeamMortgage",
+  company: "https://neohomeloans.com"
+};
+
 /* ---------- Hashtag Library ---------- */
 GEM.hashtags = {
   core: {
@@ -489,9 +504,13 @@ That's the standard. Every file. Every family.`,
       "It takes a team to close a loan on time. Meet ours.",
       "You work with a TEAM here, not a call center. Meet everyone."
     ],
-    caption: `When you work with Gem Home Team, you get exactly that — a TEAM. 🤝
+    caption: `When you work with GEM Home Team, you get exactly that — a TEAM. 🤝
 
-[Intro each member, 1-2 lines: name, role, superpower, fun fact.]
+👑 Megan Sawamura — Producing Branch Manager (NMLS #972639). [1-2 lines: superpower, fun fact]
+⭐ Anthony Edrozo — Loan Officer. [1-2 lines]
+⭐ Sonny Alquizar — Loan Officer. [1-2 lines]
+⭐ Camryn — [role + 1-2 lines]
+⭐ Kevin — [role + 1-2 lines]
 
 Why it matters to you:
 🔹 Someone always knows the status of your file
@@ -865,7 +884,7 @@ GEM.complianceRules = {
   disclaimerTemplate: (s) =>
 `—
 {NAME} · NMLS #{NMLS}
-Gem Home Team · NEO Home Loans, powered by Better · NMLS #{CO_NMLS}
+GEM Home Team · NEO Home Loans, powered by Better Mortgage Corporation · NMLS #{CO_NMLS}
 Equal Housing Lender. {STATES}
 This is not a commitment to lend. All loans subject to credit approval, underwriting, and program guidelines. Terms and availability subject to change. This content is for educational purposes only and is not financial advice — every situation is different.`
 };

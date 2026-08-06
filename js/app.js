@@ -9,8 +9,8 @@
 
   /* ---------------- Settings ---------------- */
   const DEFAULT_SETTINGS = {
-    name: "", nmls: "", companyNmls: "", states: "",
-    handle: "@gemhometeam", phone: "", email: "", city: ""
+    name: "", nmls: "", companyNmls: "330511", states: "CA",
+    handle: "@gemhometeam", phone: "", email: "", city: "San Diego"
   };
 
   GEM.getSettings = function () {
@@ -387,6 +387,14 @@
         <span class="swatch-use">${use}</span>
       </button>`).join("");
     $$(".swatch", colors).forEach(b => b.addEventListener("click", () => copyText(b.dataset.hex, $(".swatch-hex", b))));
+
+    const team = $("#brand-team");
+    if (team && GEM.team) {
+      team.innerHTML = GEM.team.map(m =>
+        `<div class="tool-card"><strong>${m.name}</strong><span>${m.role}${m.nmls ? " · NMLS #" + m.nmls : ""}</span></div>`).join("");
+      $("#brand-office").innerHTML =
+        `${GEM.office} · <a href="${GEM.links.website}" target="_blank" rel="noopener" style="color:var(--blue)">gemhometeam.com</a> · <a href="${GEM.links.facebook}" target="_blank" rel="noopener" style="color:var(--blue)">Facebook</a>. Verify each member's NMLS ID before publishing — update the roster in js/data.js.`;
+    }
 
     const canva = $("#brand-canva");
     if (canva && GEM.canvaTemplates) {
