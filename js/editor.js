@@ -485,7 +485,7 @@
       });
       if (hit) phDrag = { type: "crop-corner", corner: hit };
       else if (px > rx && px < rx + rw && py > ry && py < ry + rh) phDrag = { type: "crop-move", ox: px / w - c.x, oy: py / h - c.y };
-      if (phDrag) phCanvas.setPointerCapture(e.pointerId);
+      if (phDrag) { try { phCanvas.setPointerCapture(e.pointerId); } catch (err) {} }
       return;
     }
     // text hit-test (topmost first)
@@ -494,7 +494,7 @@
       if (b && px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) {
         P.selText = i;
         phDrag = { type: "text", idx: i, ox: px / phCanvas.width - P.texts[i].x, oy: py / phCanvas.height - P.texts[i].y };
-        phCanvas.setPointerCapture(e.pointerId);
+        try { phCanvas.setPointerCapture(e.pointerId); } catch (err) {}
         phRenderTextLayers();
         return;
       }
@@ -504,7 +504,7 @@
       const b = P.overlays[i]._bbox;
       if (b && px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) {
         phDrag = { type: "overlay", idx: i, ox: px / phCanvas.width - P.overlays[i].x, oy: py / phCanvas.height - P.overlays[i].y };
-        phCanvas.setPointerCapture(e.pointerId);
+        try { phCanvas.setPointerCapture(e.pointerId); } catch (err) {}
         return;
       }
     }
@@ -1437,6 +1437,8 @@
     }
     const phOvFile = document.createElement("input");
     phOvFile.type = "file"; phOvFile.accept = "image/*";
+    phOvFile.id = "ph-overlay-file"; phOvFile.className = "hidden";
+    document.body.appendChild(phOvFile);
     phOvFile.addEventListener("change", e => {
       const f = e.target.files[0];
       if (!f) return;
@@ -1454,6 +1456,8 @@
     /* ---- photo: LUT ---- */
     const lutFile = document.createElement("input");
     lutFile.type = "file"; lutFile.accept = ".cube,.CUBE";
+    lutFile.id = "ph-lut-file"; lutFile.className = "hidden";
+    document.body.appendChild(lutFile);
     lutFile.addEventListener("change", e => {
       const f = e.target.files[0];
       if (!f) return;
@@ -1663,6 +1667,8 @@
     }
     const vdOvFile = document.createElement("input");
     vdOvFile.type = "file"; vdOvFile.accept = "image/*";
+    vdOvFile.id = "vd-overlay-file"; vdOvFile.className = "hidden";
+    document.body.appendChild(vdOvFile);
     vdOvFile.addEventListener("change", e => {
       const f = e.target.files[0];
       if (!f) return;
@@ -1719,6 +1725,8 @@
     renderSpList();
     const muInput = document.createElement("input");
     muInput.type = "file"; muInput.accept = "audio/*";
+    muInput.id = "mu-file"; muInput.className = "hidden";
+    document.body.appendChild(muInput);
     muInput.addEventListener("change", e => { if (e.target.files[0]) loadMusicFile(e.target.files[0]); muInput.value = ""; });
     $("#mu-load").addEventListener("click", () => muInput.click());
 
