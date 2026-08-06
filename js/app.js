@@ -43,15 +43,34 @@
   }
 
   /* ---------------- Utilities ---------------- */
+  function flashCopied(btn) {
+    if (!btn) return;
+    const old = btn.textContent;
+    btn.textContent = "✓ Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = old; btn.classList.remove("copied"); }, 1600);
+  }
+
+  function legacyCopy(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0";
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
   function copyText(text, btn) {
-    navigator.clipboard.writeText(text).then(() => {
-      if (btn) {
-        const old = btn.textContent;
-        btn.textContent = "✓ Copied!";
-        btn.classList.add("copied");
-        setTimeout(() => { btn.textContent = old; btn.classList.remove("copied"); }, 1600);
-      }
-    });
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text)
+        .then(() => flashCopied(btn))
+        .catch(() => { if (legacyCopy(text)) flashCopied(btn); });
+    } else {
+      if (legacyCopy(text)) flashCopied(btn);
+    }
   }
   window.gemCopy = copyText;
 

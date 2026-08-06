@@ -362,6 +362,7 @@ body {
   background: var(--navy); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 40px 20px; margin-bottom: 12px;
 }
+.logo-preview svg { max-width: 100%; height: auto; }
 .logo-preview.light { background: #F4F8FA; }
 
 /* ---------- Automation ---------- */
