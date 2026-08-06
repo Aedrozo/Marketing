@@ -1037,6 +1037,37 @@ NEO Home Loans is a division of Better Mortgage Corporation, NMLS #{CO_NMLS} · 
 This is not a commitment to lend. All loans subject to credit approval, underwriting, and program guidelines. Terms and availability subject to change. This content is for educational purposes only and is not financial advice — every situation is different.`
 };
 
+/* ---------- Ready-to-Post Library (finished graphics in assets/library/) ---------- */
+GEM.library = [
+  { series: "The NEO Tech Edge", items: [
+    { file: "02-tinman.png", title: "Approved in minutes, not days", note: "Tinman AI speed story — pair with DM keyword START" },
+    { file: "03-betsy.png", title: "Betsy — answers around the clock", note: "Tech-edge series — check the on-image keyword before posting" },
+    { file: "04-total-cost-analysis.png", title: "Total Cost Analysis", note: "Advice-over-rates positioning" },
+    { file: "05-managed-for-life.png", title: "Closing day is day one", note: "Mortgage managed for life — pair with DM keyword WEALTH" }
+  ]},
+  { series: "Buyer FAQ", items: [
+    { file: "01-cover.png", title: "FAQ carousel cover", note: "Slide 1 of the FAQ carousel" },
+    { file: "02-prequal-vs-preapproval.png", title: "Pre-qual vs pre-approval", note: "Pairs with the FAQ caption in Content Studio" },
+    { file: "03-credit-score.png", title: "What credit score do I need?", note: "FAQ slide" },
+    { file: "04-rate-shopping-credit.png", title: "Does rate shopping hurt credit?", note: "FAQ slide" }
+  ]},
+  { series: "Content Mix — Education & Market", items: [
+    { file: "01-market-rates.png", title: "What moves your rate", note: "Evergreen market education" },
+    { file: "02-market-sandiego.png", title: "San Diego market update", note: "Refresh the stats before each posting" },
+    { file: "03-myth-20down.png", title: "Myth: 20% down required", note: "Pairs with the 20% myth caption" },
+    { file: "04-myth-renting.png", title: "Myth: renting is always cheaper", note: "Pairs with rent-vs-own captions" },
+    { file: "05-myth-wait-rates.png", title: "Myth: wait for rates to drop", note: "Pairs with the honest-take caption" },
+    { file: "06-myth-prequal.png", title: "Myth: pre-qual = pre-approval", note: "Pairs with the pre-approval caption" },
+    { file: "07-local-neighborhoods.png", title: "San Diego neighborhoods", note: "Local authority content" },
+    { file: "08-open-house-feature.png", title: "Open house feature", note: "Swap in the current property" }
+  ]},
+  { series: "Realtor Partners", items: [
+    { file: "09-agent-open-house.png", title: "Agent open house support", note: "Pairs with the co-branded open house caption" },
+    { file: "10-agent-spotlight.png", title: "Agent partner spotlight", note: "Tag the featured agent when posting" },
+    { file: "11-agent-market-brief.png", title: "Agent market brief", note: "Value-first content for agent audiences" }
+  ]}
+];
+
 /* ---------- Canva Templates (in your Canva account) ---------- */
 GEM.canvaTemplates = [
   { name: "Just Closed — signature card", url: "https://www.canva.com/d/1V9CgDMOWqPcy1K", use: "Split layout: swap in the property photo and closing details for every closing" },

@@ -294,6 +294,18 @@ body {
 .rule-item.warn { border-left-color: var(--amber); }
 .rule-item.caution { border-left-color: var(--mist); }
 
+/* ---------- Ready-to-Post Library ---------- */
+.lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.lib-card {
+  display: block; text-decoration: none; color: var(--white);
+  background: var(--ink-2); border: 1px solid var(--line); border-radius: 10px;
+  overflow: hidden; transition: border-color .15s;
+}
+.lib-card:hover { border-color: var(--blue); }
+.lib-card img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.lib-title { display: block; font-weight: 700; font-size: 0.84rem; padding: 10px 12px 2px; }
+.lib-note { display: block; color: var(--mist-dim); font-size: 0.74rem; padding: 0 12px 11px; line-height: 1.4; }
+
 /* ---------- Reels ---------- */
 .reel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
 .reel-card {

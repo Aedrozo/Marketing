@@ -298,6 +298,41 @@
     openStudioWithTopic(t.id);
   }
 
+  /* ---------------- Ready-to-Post Library ---------------- */
+  function renderLibrary() {
+    const wrap = $("#library-groups");
+    if (!wrap || !GEM.library) return;
+    wrap.innerHTML = "";
+    let missing = 0;
+    GEM.library.forEach(group => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<span class="kicker">${group.series}</span><div class="lib-grid"></div>`;
+      const grid = $(".lib-grid", card);
+      group.items.forEach(item => {
+        const a = document.createElement("a");
+        a.className = "lib-card";
+        a.href = "assets/library/" + item.file;
+        a.target = "_blank"; a.rel = "noopener";
+        a.innerHTML = `<img src="assets/library/${item.file}" alt="${item.title}" loading="lazy">
+          <span class="lib-title">${item.title}</span>
+          <span class="lib-note">${item.note}</span>`;
+        $("img", a).addEventListener("error", () => {
+          a.remove();
+          if (++missing && !$("#lib-missing-note")) {
+            const note = document.createElement("p");
+            note.id = "lib-missing-note";
+            note.className = "footnote";
+            note.textContent = "Graphics load from the repository — open the Library on your live site (aedrozo.github.io/Marketing) or from the project folder to see previews.";
+            wrap.prepend(note);
+          }
+        });
+        grid.appendChild(a);
+      });
+      wrap.appendChild(card);
+    });
+  }
+
   /* ---------------- Reel Studio ---------------- */
   function renderReels() {
     const wrap = $("#reel-list");
@@ -750,6 +785,7 @@
     renderDashboard();
     renderCalendar();
     renderPillarButtons();
+    renderLibrary();
     renderReels();
     renderLeads();
     renderKpis();
