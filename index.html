@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gem Marketing OS — Gem Home Team</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 8 L92 42 L82 42 L82 92 L18 92 L18 42 L8 42 Z' fill='%2345B6E8'/><path d='M50 48 L62 62 L50 76 L38 62 Z' fill='%230D2B36'/></svg>">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="logo-lockup">
+      <svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M50 6 L94 42 L82 42 L82 94 L18 94 L18 42 L6 42 Z" fill="#45B6E8"/>
+        <path d="M50 50 L63 65 L50 80 L37 65 Z" fill="#0D2B36"/>
+      </svg>
+      <div class="logo-text">
+        <h1>GEM HOME TEAM</h1>
+        <span class="sub">Mortgage Lending</span>
+      </div>
+    </div>
+    <div class="cobrand">
+      <strong>NEO HOME LOANS</strong><br>
+      powered by Better<br>
+      Marketing OS
+    </div>
+  </div>
+  <nav class="nav" aria-label="Sections">
+    <button class="nav-item active" data-tab="dashboard">Dashboard</button>
+    <button class="nav-item" data-tab="calendar">Calendar</button>
+    <button class="nav-item" data-tab="studio">Content Studio</button>
+    <button class="nav-item" data-tab="reels">Reel Studio</button>
+    <button class="nav-item" data-tab="compliance">Compliance</button>
+    <button class="nav-item" data-tab="hashtags">Hashtags</button>
+    <button class="nav-item" data-tab="brand">Brand Kit</button>
+    <button class="nav-item" data-tab="automation">Automation</button>
+    <button class="nav-item" data-tab="settings">Settings</button>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= DASHBOARD ================= -->
+  <section class="panel active" id="panel-dashboard">
+    <h2 id="dash-greeting">Welcome</h2>
+
+    <div class="nudge hidden" id="dash-nudge">
+      <span>Finish setup: add your name and NMLS ID so every caption and disclosure generates compliance-ready.</span>
+      <button class="btn small" id="dash-nudge-btn">Open settings</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="stat-topics">0</b><span>Post templates</span></div>
+      <div class="stat"><b id="stat-reels">0</b><span>Reel scripts</span></div>
+      <div class="stat"><b id="stat-tags">0</b><span>Hashtags</span></div>
+      <div class="stat"><b id="stat-rules">0</b><span>Compliance rules</span></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <span class="kicker">Today</span>
+        <div id="dash-today"></div>
+      </div>
+      <div class="card">
+        <span class="kicker">Next 7 days</span>
+        <div id="dash-week"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="kicker">Daily story playbook</span>
+      <h3>Run this every day — 15 minutes total</h3>
+      <ul id="dash-stories"></ul>
+    </div>
+  </section>
+
+  <!-- ================= CALENDAR ================= -->
+  <section class="panel" id="panel-calendar">
+    <div class="panel-head">
+      <h2>Content Calendar</h2>
+      <p>Auto-generated from the weekly framework: 4 reels, 1 carousel, 1 static, 1 engagement day — the cadence of top-producing accounts. Click any day to generate that post.</p>
+    </div>
+    <div class="cal-bar">
+      <div class="cal-bar-left">
+        <button class="btn small" id="cal-prev">←</button>
+        <span id="cal-title"></span>
+        <button class="btn small" id="cal-next">→</button>
+      </div>
+      <button class="btn primary" id="cal-export">Export month (CSV)</button>
+    </div>
+    <div id="cal-grid"></div>
+    <div id="cal-legend"></div>
+  </section>
+
+  <!-- ================= CONTENT STUDIO ================= -->
+  <section class="panel" id="panel-studio">
+    <div class="panel-head">
+      <h2>Content Studio</h2>
+      <p>Pick a pillar, pick a topic — get a complete post: hook options, caption, CTA, hashtags, design direction, and your compliance footer. Personalized from your settings, compliance-checked automatically.</p>
+    </div>
+
+    <div class="card">
+      <div class="block-head" style="margin-top:0">
+        <h4>1 · Choose a pillar</h4>
+        <button class="btn small" id="studio-shuffle">Surprise me</button>
+      </div>
+      <div class="pillar-row" id="studio-pillars"></div>
+      <div class="hidden">
+        <div class="block-head"><h4>2 · Choose a topic</h4></div>
+        <div class="topic-list" id="studio-topics"></div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="studio-output">
+      <div id="out-meta"></div>
+      <h3 id="out-title"></h3>
+      <div id="out-compliance" class="comp-badge"></div>
+      <ul class="findings" id="out-comp-findings"></ul>
+
+      <div class="block-head"><h4>Hook — pick your opener</h4></div>
+      <div class="hook-list" id="out-hooks"></div>
+
+      <div class="block-head"><h4>Caption</h4><button class="btn small" id="out-copy-caption">Copy</button></div>
+      <div class="copy-block" id="out-caption"></div>
+
+      <div class="block-head"><h4>Hashtags</h4><button class="btn small" id="out-copy-tags">Copy</button></div>
+      <div class="copy-block" id="out-tags"></div>
+
+      <div class="block-head"><h4>Compliance footer</h4><button class="btn small" id="out-copy-footer">Copy</button></div>
+      <div class="copy-block" id="out-footer"></div>
+
+      <div class="block-head"><h4>Design direction</h4></div>
+      <div class="copy-block" id="out-design"></div>
+
+      <div class="block-head"><h4></h4><button class="btn primary" id="out-copy-full">Copy complete post</button></div>
+    </div>
+  </section>
+
+  <!-- ================= REEL STUDIO ================= -->
+  <section class="panel" id="panel-reels">
+    <div class="panel-head">
+      <h2>Reel Studio</h2>
+      <p>Shot-by-shot production sheets: what to say, what to show, and what text goes on screen — timed to the second. Film on your phone, edit in CapCut with auto-captions.</p>
+    </div>
+    <div class="reel-grid" id="reel-list"></div>
+
+    <div class="card hidden" id="reel-output">
+      <div id="reel-out-meta"></div>
+      <h3 id="reel-out-title"></h3>
+      <div class="block-head"><h4>Audio</h4></div>
+      <div class="copy-block" id="reel-audio"></div>
+      <div class="block-head"><h4>Cover frame</h4></div>
+      <div class="copy-block" id="reel-cover"></div>
+      <div class="block-head"><h4>Shot list</h4><button class="btn small" id="reel-copy">Copy script</button></div>
+      <div id="reel-scenes"></div>
+    </div>
+  </section>
+
+  <!-- ================= COMPLIANCE ================= -->
+  <section class="panel" id="panel-compliance">
+    <div class="panel-head">
+      <h2>Compliance Center</h2>
+      <p>Screens copy against NMLS advertising requirements, Reg Z (TILA) triggering terms, Reg N (MAP Rule), and UDAAP-style deceptive-claim rules. A guardrail — your company compliance team always has the final word.</p>
+    </div>
+
+    <div class="card">
+      <span class="kicker">Check a post</span>
+      <textarea id="comp-input" placeholder="Paste any caption, ad copy, or DM script here…"></textarea>
+      <div class="comp-actions">
+        <button class="btn primary" id="comp-run">Run compliance check</button>
+        <button class="btn" id="comp-fix">Auto-add missing disclosures</button>
+      </div>
+      <div id="comp-results" class="hidden">
+        <div id="comp-status" class="comp-badge big"></div>
+        <ul class="findings" id="comp-findings"></ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="kicker">The rulebook</span>
+      <h3>Mortgage advertising rules, in plain English</h3>
+      <div id="comp-rulebook"></div>
+    </div>
+  </section>
+
+  <!-- ================= HASHTAGS ================= -->
+  <section class="panel" id="panel-hashtags">
+    <div class="panel-head">
+      <h2>Hashtag Library</h2>
+      <p>Curated sets by content type. Strategy: core brand set on every post + one or two topic sets. Keep it under 25 tags total.</p>
+    </div>
+    <div id="hashtag-sets"></div>
+  </section>
+
+  <!-- ================= BRAND KIT ================= -->
+  <section class="panel" id="panel-brand">
+    <div class="panel-head">
+      <h2>Brand Kit</h2>
+      <p>Your visual identity, codified. Every asset in every app (Canva, CapCut) should be built from these exact values — consistency is what makes a feed look expensive.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <span class="kicker">Primary logo — dark</span>
+        <div class="logo-preview">
+          <svg width="320" height="86" viewBox="0 0 320 86" role="img" aria-label="Gem Home Team logo on navy">
+            <path d="M32 6 L60 29 L52 29 L52 62 L12 62 L12 29 L4 29 Z" fill="#45B6E8"/>
+            <path d="M32 33 L40 42 L32 51 L24 42 Z" fill="#0D2B36"/>
+            <text x="72" y="38" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="24" font-weight="800" letter-spacing="1.5">GEM HOME TEAM</text>
+            <text x="73" y="60" fill="#45B6E8" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="5">MORTGAGE LENDING</text>
+          </svg>
+        </div>
+      </div>
+      <div class="card">
+        <span class="kicker">Primary logo — light</span>
+        <div class="logo-preview light">
+          <svg width="320" height="86" viewBox="0 0 320 86" role="img" aria-label="Gem Home Team logo on light">
+            <path d="M32 6 L60 29 L52 29 L52 62 L12 62 L12 29 L4 29 Z" fill="#1E90C9"/>
+            <path d="M32 33 L40 42 L32 51 L24 42 Z" fill="#0D2B36"/>
+            <text x="72" y="38" fill="#0D2B36" font-family="Arial, sans-serif" font-size="24" font-weight="800" letter-spacing="1.5">GEM HOME TEAM</text>
+            <text x="73" y="60" fill="#1E90C9" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="5">MORTGAGE LENDING</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="kicker">Color system</span>
+      <h3>Click any swatch to copy the hex</h3>
+      <div class="swatch-grid" id="brand-colors"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <span class="kicker">Design principles</span>
+        <h3>How the top 1% actually look</h3>
+        <div id="brand-principles"></div>
+      </div>
+      <div class="card">
+        <span class="kicker">The reel formula</span>
+        <h3>Every reel, same skeleton</h3>
+        <ol class="formula-list" id="brand-formula"></ol>
+        <p class="footnote">Photography over illustration. Real faces, real closings, natural light, honest moments. Professional means editorial restraint — never clip-art, never cartoon graphics, never ten fonts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AUTOMATION ================= -->
+  <section class="panel" id="panel-automation">
+    <div class="panel-head">
+      <h2>Automation Hub</h2>
+      <p>The goal: your only jobs are filming 30 minutes a week and replying to DMs. Everything else — writing, scheduling, posting, compliance — is handled by this system plus one scheduler connection.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <span class="kicker">One-time setup · 30 minutes</span>
+        <h3>Connect true auto-posting</h3>
+        <ol class="step-list">
+          <li><strong>Convert your Instagram to a Professional account</strong> (Settings → Account type). Free, takes 2 minutes, unlocks scheduling and analytics.</li>
+          <li><strong>Link it to a Facebook Page</strong> in Meta Business Suite (business.facebook.com). This is what allows software to post for you.</li>
+          <li><strong>Pick your scheduler:</strong> Meta Business Suite (free, official) or Buffer / Later / Metricool (nicer bulk tools). Connect Instagram when prompted.</li>
+          <li><strong>Export your month</strong> below and bulk-import it — every post lands pre-written, pre-timed, compliance-footed.</li>
+          <li><strong>Set up ManyChat keywords</strong> (GUIDE, READY, EQUITY, CREDIT…) so DM replies with your lead magnets go out instantly, 24/7.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <span class="kicker">Your weekly rhythm · under 1 hour</span>
+        <h3>The hands-off workflow</h3>
+        <ol class="step-list">
+          <li><strong>Sunday (20 min):</strong> open the Calendar, review the week, export or queue the 7 posts.</li>
+          <li><strong>One filming block (30 min):</strong> batch-record the week's reels from the Reel Studio shot lists — 3-4 scripts in one sitting, same outfit trick: change shirts between scripts.</li>
+          <li><strong>Daily (10 min):</strong> run the story playbook, reply to comments and DMs. This is the one thing automation should never do — relationships are the product.</li>
+          <li><strong>Monthly (15 min):</strong> swap in fresh client stories and market numbers, check analytics, double down on what worked.</li>
+        </ol>
+        <div style="margin-top:18px">
+          <button class="btn primary" id="auto-export">Export next 2 months for bulk import (CSV)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="kicker">The stack</span>
+      <h3>Tools of the top 1%</h3>
+      <div id="auto-tools"></div>
+      <p class="footnote">Honest note: Instagram does not allow fully unattended posting without an approved scheduler connected to your account — that's a platform rule, not a software limitation. With the 30-minute setup above, this system gets you to genuinely hands-off: content written, scheduled, and posted automatically, with only filming and DMs left human. That's by design — the human parts are what convert followers into closings.</p>
+    </div>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section class="panel" id="panel-settings">
+    <div class="panel-head">
+      <h2>Settings</h2>
+      <p>Fills your name, NMLS ID, and licensing into every caption and compliance footer automatically. Saved privately in this browser.</p>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+        <div class="field"><label for="set-name">Your name</label><input id="set-name" placeholder="Anthony Edrozo"></div>
+        <div class="field"><label for="set-nmls">Your NMLS ID</label><input id="set-nmls" placeholder="e.g. 1234567"></div>
+        <div class="field"><label for="set-conmls">Company NMLS ID</label><input id="set-conmls" placeholder="Company NMLS #"></div>
+        <div class="field"><label for="set-states">States licensed (as you want it displayed)</label><input id="set-states" placeholder="e.g. CA, TX, FL"></div>
+        <div class="field"><label for="set-handle">Instagram handle</label><input id="set-handle" placeholder="@gemhometeam"></div>
+        <div class="field"><label for="set-city">City / market</label><input id="set-city" placeholder="Your city"></div>
+        <div class="field"><label for="set-phone">Phone</label><input id="set-phone" placeholder="(555) 555-5555"></div>
+        <div class="field"><label for="set-email">Email</label><input id="set-email" placeholder="you@example.com"></div>
+      </div>
+      <div style="margin-top:18px"><button class="btn primary" id="set-save">Save settings</button></div>
+      <p class="footnote">Compliance disclaimer: the Compliance Center is an automated guardrail based on common NMLS, Reg Z, Reg N, and UDAAP advertising standards. It is not legal advice, and it does not replace review by your company's compliance department. State requirements vary — confirm your state-specific advertising rules with compliance.</p>
+    </div>
+  </section>
+
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/compliance.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
