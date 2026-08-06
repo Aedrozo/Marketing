@@ -388,6 +388,12 @@
       </button>`).join("");
     $$(".swatch", colors).forEach(b => b.addEventListener("click", () => copyText(b.dataset.hex, $(".swatch-hex", b))));
 
+    const canva = $("#brand-canva");
+    if (canva && GEM.canvaTemplates) {
+      canva.innerHTML = GEM.canvaTemplates.map(t =>
+        `<a class="tool-card" style="display:block;text-decoration:none" href="${t.url}" target="_blank" rel="noopener"><strong>${t.name} ↗</strong><span>${t.use}</span></a>`).join("");
+    }
+
     const prin = $("#brand-principles");
     prin.innerHTML = GEM.designPlaybook.principles.map((p, i) =>
       `<div class="principle"><span class="principle-num">${String(i + 1).padStart(2, "0")}</span>

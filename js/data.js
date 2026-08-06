@@ -241,6 +241,56 @@ Those last two go into your ESCROW account. Think of it as a forced savings acco
     designBrief: "Reel: 4 animated jars filling (P-I-T-I) on navy background. Bold single-word overlays. End: 'Save this for house-hunting season.'"
   },
 
+  {
+    id: "edu-loan-programs", pillar: "education", title: "Every loan program explained (carousel)", format: "Carousel",
+    hooks: [
+      "There are at least 9 ways to finance a home. You've probably only heard of 2.",
+      "FHA? VA? DSCR? Jumbo? Here's every loan type in plain English. Save this.",
+      "The right loan program can change everything. Here's the full menu 👇"
+    ],
+    caption: `Most buyers only know about "a mortgage." There's a whole menu 👇
+
+🏛️ FHA — flexible credit guidelines, popular with first-time buyers
+🎖️ VA — for eligible veterans and service members; strong benefits
+🏠 CONVENTIONAL — the classic; many down payment options for qualified buyers
+📄 BANK STATEMENT — for self-employed borrowers who write off income
+💧 HELOC — a line of credit against your equity
+🔄 REFINANCE — restructure the loan you already have
+🏰 JUMBO — for higher-priced homes above conforming limits
+📈 DSCR — investor loans qualified on the property's rental income
+🤝 DPA — down payment assistance programs, where available
+
+No program is "best" — there's only the one that fits YOUR income, goals, and timeline. That's the entire value of working with a team that offers all of them: we fit the loan to you, not you to the loan.
+
+Every program is subject to qualification and guidelines — this is the map, not the approval. 🗺️`,
+    cta: "🧭 Curious which lane fits you? DM me PROGRAMS and I'll walk you through your best options.",
+    hashtagKeys: ["core", "education", "firstTimeBuyer"],
+    designBrief: "10-slide carousel matching your existing loan-carousel series: cover slide + one program per slide, navy card, program name in extra-bold white, one-line plain-English definition, blue icon chip, GEM × NEO badge bottom-right, EHO logo on final CTA slide."
+  },
+  {
+    id: "edu-faq-carousel", pillar: "education", title: "Buyer FAQ: the questions everyone asks", format: "Carousel",
+    hooks: [
+      "The 3 questions every single buyer asks me (answered honestly)",
+      "Your top mortgage FAQs — answered in one save-able post.",
+      "Asked constantly, answered rarely. Let's fix that 👇"
+    ],
+    caption: `The questions I answer every single week — saved here so you have them forever 👇
+
+❓ "What's the difference between pre-qualified and pre-approved?"
+Pre-qual is an estimate from a conversation. Pre-approval means your documents were actually verified — it's the one that wins offers.
+
+❓ "Will shopping for rates hurt my credit?"
+Multiple mortgage inquiries within a short shopping window are typically treated as ONE inquiry by scoring models. Shopping smart is allowed — and encouraged.
+
+❓ "What credit score do I actually need?"
+Lower than you think for many programs. The bigger factors: your full picture — income, debts, savings, and history. One number never tells the whole story.
+
+Save this post. Send it to the friend who keeps asking Google instead of a professional. 📌`,
+    cta: "❓Have a question that's not here? Drop it below — it might become next week's post.",
+    hashtagKeys: ["core", "education", "firstTimeBuyer"],
+    designBrief: "4-slide FAQ carousel matching your existing series: cover with 'BUYER FAQ' headline, one Q&A per slide, question in blue, answer in white, generous margins, GEM × NEO badge."
+  },
+
   /* ===== MARKET PULSE ===== */
   {
     id: "mkt-weekly-update", pillar: "market", title: "60-second market update", format: "Reel",
@@ -819,6 +869,15 @@ Gem Home Team · NEO Home Loans, powered by Better · NMLS #{CO_NMLS}
 Equal Housing Lender. {STATES}
 This is not a commitment to lend. All loans subject to credit approval, underwriting, and program guidelines. Terms and availability subject to change. This content is for educational purposes only and is not financial advice — every situation is different.`
 };
+
+/* ---------- Canva Templates (in your Canva account) ---------- */
+GEM.canvaTemplates = [
+  { name: "Just Closed — celebration post", url: "https://www.canva.com/d/oLMubFz42AQBH5a", use: "Swap in the property photo, address, and your headshot for every closing" },
+  { name: "Client Testimonial spotlight", url: "https://www.canva.com/d/RMce03x3LA6ZTgf", use: "Paste the client's verbatim review (with permission) and their first name" },
+  { name: "San Diego Market Update", url: "https://www.canva.com/d/qz6HF6RTcGZL7PG", use: "Update the three stats monthly — median price, days on market, listings" },
+  { name: "Loan Programs, Explained", url: "https://www.canva.com/d/_E2FJkrNR574e-5", use: "Evergreen educational post — pairs with the loan programs caption in Content Studio" }
+];
+GEM.canvaFolder = "https://www.canva.com/folder/FAHRfYDqxyQ";
 
 /* ---------- Design System: "Top 1%" playbook ---------- */
 GEM.designPlaybook = {
