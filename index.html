@@ -32,9 +32,11 @@
     <button class="nav-item" data-tab="calendar">Calendar</button>
     <button class="nav-item" data-tab="studio">Content Studio</button>
     <button class="nav-item" data-tab="reels">Reel Studio</button>
+    <button class="nav-item" data-tab="leads">Leads &amp; Email</button>
     <button class="nav-item" data-tab="compliance">Compliance</button>
     <button class="nav-item" data-tab="hashtags">Hashtags</button>
     <button class="nav-item" data-tab="brand">Brand Kit</button>
+    <button class="nav-item" data-tab="report">Report Card</button>
     <button class="nav-item" data-tab="automation">Automation</button>
     <button class="nav-item" data-tab="settings">Settings</button>
   </nav>
@@ -73,6 +75,14 @@
       <span class="kicker">Daily story playbook</span>
       <h3>Run this every day — 15 minutes total</h3>
       <ul id="dash-stories"></ul>
+    </div>
+
+    <div class="card">
+      <span class="kicker">KPI tracker</span>
+      <h3>Log these once a month — what gets measured gets grown</h3>
+      <div class="form-grid" id="kpi-form"></div>
+      <div style="margin-top:14px"><button class="btn primary" id="kpi-save">Log this month</button></div>
+      <div id="kpi-history"></div>
     </div>
   </section>
 
@@ -155,6 +165,39 @@
       <div class="copy-block" id="reel-cover"></div>
       <div class="block-head"><h4>Shot list</h4><button class="btn small" id="reel-copy">Copy script</button></div>
       <div id="reel-scenes"></div>
+    </div>
+  </section>
+
+  <!-- ================= LEADS & EMAIL ================= -->
+  <section class="panel" id="panel-leads">
+    <div class="panel-head">
+      <h2>Leads &amp; Email</h2>
+      <p>Content earns attention — this tab converts it. DM keyword auto-replies (load these into ManyChat), conversation scripts for real humans, email sequences, and the review &amp; referral engine.</p>
+    </div>
+
+    <div class="card">
+      <span class="kicker">DM keyword auto-replies · ManyChat-ready</span>
+      <h3>When someone DMs the keyword, this goes out instantly</h3>
+      <div id="leads-keywords"></div>
+      <p class="footnote">Rule: every keyword you use in a caption needs a loaded reply. Using a new keyword (VA, ASSIST, INVEST, REVIEW…)? Duplicate the closest template above, swap the keyword in ManyChat, done.</p>
+    </div>
+
+    <div class="card">
+      <span class="kicker">Conversation playbook</span>
+      <h3>Scripts for the moments that matter (these stay human)</h3>
+      <div id="leads-flows"></div>
+    </div>
+
+    <div class="card">
+      <span class="kicker">Email studio</span>
+      <h3>Eight sequences that run your follow-up</h3>
+      <div id="leads-emails"></div>
+    </div>
+
+    <div class="card">
+      <span class="kicker">Review &amp; referral engine</span>
+      <h3>Reviews are rocket fuel — here's the system</h3>
+      <div id="leads-reviews"></div>
     </div>
   </section>
 
@@ -261,11 +304,45 @@
     </div>
   </section>
 
+  <!-- ================= REPORT CARD ================= -->
+  <section class="panel" id="panel-report">
+    <div class="panel-head">
+      <h2>Online Presence Report Card</h2>
+      <p>Two views: the baseline audit of your public presence (what the internet sees today), and a living self-audit — check off what's true and watch your grades climb. Re-grade monthly.</p>
+    </div>
+
+    <div class="card">
+      <span class="kicker">Baseline audit · from public search, August 2026</span>
+      <h3>What the internet says about you right now</h3>
+      <div id="report-baseline"></div>
+    </div>
+
+    <div class="card">
+      <div class="tag-head">
+        <div><span class="kicker">Living self-audit</span>
+        <h3>Your current grades</h3></div>
+        <div id="report-gpa" class="gpa-chip"></div>
+      </div>
+      <div id="report-categories"></div>
+    </div>
+  </section>
+
   <!-- ================= AUTOMATION ================= -->
   <section class="panel" id="panel-automation">
     <div class="panel-head">
       <h2>Automation Hub</h2>
       <p>The goal: your only jobs are filming 30 minutes a week and replying to DMs. Everything else — writing, scheduling, posting, compliance — is handled by this system plus one scheduler connection.</p>
+    </div>
+
+    <div class="card">
+      <div class="tag-head">
+        <div><span class="kicker">Connect your accounts</span>
+        <h3>The hands-off stack — check off each connection</h3></div>
+        <div id="auto-readiness" class="gpa-chip"></div>
+      </div>
+      <div class="readiness-bar"><div id="auto-readiness-fill"></div></div>
+      <div id="auto-integrations"></div>
+      <p class="footnote">Straight talk: a browser app can't hold your Instagram password — Meta only allows posting through its own approved connections. Each item above IS the official connection, done once in the platform itself. When every box is checked, your marketing runs itself: this app writes and plans, the scheduler posts, ManyChat answers, and your only jobs are ~30 min of filming and the DMs that turn into deals.</p>
     </div>
 
     <div class="grid-2">
@@ -277,7 +354,7 @@
           <li><strong>Link it to a Facebook Page</strong> in Meta Business Suite (business.facebook.com). This is what allows software to post for you.</li>
           <li><strong>Pick your scheduler:</strong> Meta Business Suite (free, official) or Buffer / Later / Metricool (nicer bulk tools). Connect Instagram when prompted.</li>
           <li><strong>Export your month</strong> below and bulk-import it — every post lands pre-written, pre-timed, compliance-footed.</li>
-          <li><strong>Set up ManyChat keywords</strong> (GUIDE, READY, EQUITY, CREDIT…) so DM replies with your lead magnets go out instantly, 24/7.</li>
+          <li><strong>Set up ManyChat keywords</strong> — every auto-reply script is written for you in the Leads &amp; Email tab (GUIDE, READY, EQUITY, CREDIT and more). Paste each into ManyChat once and DM replies go out instantly, 24/7.</li>
         </ol>
       </div>
       <div class="card">

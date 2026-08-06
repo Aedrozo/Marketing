@@ -401,3 +401,54 @@ body {
 .field input:focus { outline: none; border-color: var(--blue); }
 
 .footnote { color: var(--mist-dim); font-size: 0.78rem; margin-top: 20px; line-height: 1.6; }
+
+/* ---------- Integrations & Report Card ---------- */
+.gpa-chip { font-weight: 800; font-size: 0.95rem; letter-spacing: 0.04em; color: var(--blue); white-space: nowrap; }
+.readiness-bar {
+  height: 8px; background: var(--ink-2); border-radius: 99px;
+  overflow: hidden; margin: 6px 0 18px;
+}
+#auto-readiness-fill {
+  height: 100%; width: 0; background: linear-gradient(90deg, var(--blue-deep), var(--blue));
+  border-radius: 99px; transition: width .3s ease;
+}
+.check-row {
+  display: flex; gap: 12px; align-items: flex-start;
+  border-top: 1px solid var(--line); padding: 13px 4px; cursor: pointer;
+}
+.check-row input { margin-top: 4px; accent-color: var(--blue); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+.check-row strong { display: block; font-size: 0.92rem; }
+.check-row.done strong { color: var(--mist-dim); text-decoration: line-through; }
+.check-why { display: block; color: var(--mist-dim); font-size: 0.82rem; }
+.check-how { display: block; color: var(--blue); font-size: 0.78rem; margin-top: 3px; }
+.check-how a { color: var(--blue); font-weight: 700; }
+.check-row.small { padding: 9px 4px 9px 18px; font-size: 0.88rem; color: var(--mist); }
+.check-row.small.done div { color: var(--mist-dim); text-decoration: line-through; }
+
+.audit-row { display: flex; gap: 14px; align-items: flex-start; border-top: 1px solid var(--line); padding: 13px 4px; }
+.audit-row:first-child { border-top: none; }
+.audit-row strong { display: block; font-size: 0.92rem; }
+.audit-row span:last-child { color: var(--mist-dim); font-size: 0.85rem; }
+.grade-chip {
+  font-weight: 800; font-size: 1.05rem; min-width: 34px; text-align: center;
+  border: 2px solid currentColor; border-radius: 9px; padding: 3px 6px; flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.audit-cat { border-top: 1px solid var(--line); padding: 4px 0; }
+.audit-cat summary {
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  padding: 10px 4px; list-style: none; font-size: 0.94rem;
+}
+.audit-cat summary::-webkit-details-marker { display: none; }
+.audit-cat summary .grade-chip { font-size: 0.9rem; min-width: 30px; }
+.cat-count { margin-left: auto; color: var(--mist-dim); font-size: 0.8rem; }
+
+/* ---------- KPI table ---------- */
+.kpi-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+.kpi-table th {
+  text-align: left; color: var(--mist-dim); font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.kpi-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); color: var(--mist); }
+.kpi-table td:first-child { color: var(--white); font-weight: 600; }

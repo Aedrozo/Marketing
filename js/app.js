@@ -434,6 +434,194 @@
     download("gem-schedule-import.csv", csv, "text/csv");
   }
 
+  /* ---------------- Leads & Email ---------------- */
+  function copyBtn(text) {
+    const b = document.createElement("button");
+    b.className = "btn small";
+    b.textContent = "Copy";
+    b.addEventListener("click", () => copyText(text, b));
+    return b;
+  }
+
+  function renderLeads() {
+    const kw = $("#leads-keywords");
+    kw.innerHTML = "";
+    GEM.dmKeywords.forEach(k => {
+      const card = document.createElement("div");
+      card.className = "tool-card";
+      card.innerHTML = `<div class="tag-head"><strong>“${k.keyword}” — ${k.trigger}</strong></div><div class="copy-block" style="margin-top:8px">${k.reply}</div>`;
+      $(".tag-head", card).appendChild(copyBtn(k.reply));
+      kw.appendChild(card);
+    });
+
+    const fl = $("#leads-flows");
+    fl.innerHTML = "";
+    GEM.dmFlows.forEach(f => {
+      const card = document.createElement("div");
+      card.className = "tool-card";
+      card.innerHTML = `<div class="tag-head"><strong>${f.title}</strong></div><div class="copy-block" style="margin-top:8px">${f.script}</div>`;
+      $(".tag-head", card).appendChild(copyBtn(f.script));
+      fl.appendChild(card);
+    });
+
+    const em = $("#leads-emails");
+    em.innerHTML = "";
+    GEM.emails.forEach(e => {
+      const full = `SUBJECT: ${e.subjects[0]}\n\n${e.body}`;
+      const card = document.createElement("div");
+      card.className = "tool-card";
+      card.innerHTML = `<div class="tag-head"><strong>${e.title}</strong></div>
+        <span style="color:var(--gold);font-size:.78rem">⏱ ${e.timing}</span>
+        <div style="margin:8px 0 4px;color:var(--mist);font-size:.82rem">Subject options: ${e.subjects.map(s => `“${s}”`).join(" · ")}</div>
+        <div class="copy-block">${e.body}</div>`;
+      $(".tag-head", card).appendChild(copyBtn(full));
+      em.appendChild(card);
+    });
+
+    const rv = $("#leads-reviews");
+    rv.innerHTML = "";
+    GEM.reviewEngine.ask.forEach(a => {
+      const card = document.createElement("div");
+      card.className = "tool-card";
+      card.innerHTML = `<div class="tag-head"><strong>${a.title}</strong></div><div class="copy-block" style="margin-top:8px">${a.script}</div>`;
+      $(".tag-head", card).appendChild(copyBtn(a.script));
+      rv.appendChild(card);
+    });
+    const src = document.createElement("p");
+    src.className = "footnote";
+    src.textContent = "Where to send reviewers (in priority order): " + GEM.reviewEngine.sources.join(" → ");
+    rv.appendChild(src);
+  }
+
+  /* ---------------- KPI Tracker ---------------- */
+  function getKpis() {
+    try { return JSON.parse(localStorage.getItem("gem-kpis") || "[]"); } catch (e) { return []; }
+  }
+
+  function renderKpis() {
+    const form = $("#kpi-form");
+    if (!form) return;
+    const now = new Date();
+    const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    form.innerHTML = `<div class="field"><label for="kpi-month">Month</label><input id="kpi-month" type="month" value="${thisMonth}"></div>` +
+      GEM.kpiFields.map(f =>
+        `<div class="field"><label for="kpi-${f.key}">${f.label}</label><input id="kpi-${f.key}" type="number" min="0" placeholder="0"></div>`).join("");
+
+    const hist = $("#kpi-history");
+    const rows = getKpis().sort((a, b) => b.month.localeCompare(a.month));
+    if (!rows.length) { hist.innerHTML = ""; return; }
+    hist.innerHTML = `<div style="overflow-x:auto;margin-top:16px"><table class="kpi-table"><thead><tr><th>Month</th>${GEM.kpiFields.map(f => `<th>${f.label}</th>`).join("")}</tr></thead><tbody>` +
+      rows.map(r => `<tr><td>${r.month}</td>${GEM.kpiFields.map(f => `<td>${r[f.key] ?? "—"}</td>`).join("")}</tr>`).join("") +
+      `</tbody></table></div>`;
+  }
+
+  function saveKpis() {
+    const month = $("#kpi-month").value;
+    if (!month) return;
+    const entry = { month };
+    GEM.kpiFields.forEach(f => {
+      const v = $("#kpi-" + f.key).value;
+      entry[f.key] = v === "" ? null : +v;
+    });
+    const all = getKpis().filter(r => r.month !== month);
+    all.push(entry);
+    localStorage.setItem("gem-kpis", JSON.stringify(all));
+    const btn = $("#kpi-save");
+    btn.textContent = "✓ Logged!";
+    setTimeout(() => btn.textContent = "Log this month", 1600);
+    renderKpis();
+  }
+
+  /* ---------------- Integrations & Report Card ---------------- */
+  function getChecks(key) {
+    try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) { return {}; }
+  }
+  function setCheck(key, id, val) {
+    const all = getChecks(key);
+    all[id] = val;
+    localStorage.setItem(key, JSON.stringify(all));
+  }
+
+  function letterGrade(pct) {
+    if (pct >= 90) return "A";
+    if (pct >= 80) return "B";
+    if (pct >= 65) return "C";
+    if (pct >= 45) return "D";
+    return "F";
+  }
+  function gradeColor(g) {
+    return { A: "var(--green)", B: "var(--blue)", C: "var(--amber)", D: "var(--amber)", F: "var(--red)" }[g[0]] || "var(--mist)";
+  }
+
+  function renderIntegrations() {
+    const wrap = $("#auto-integrations");
+    if (!wrap) return;
+    const state = getChecks("gem-integrations");
+    wrap.innerHTML = "";
+    GEM.integrations.forEach(i => {
+      const row = document.createElement("label");
+      row.className = "check-row" + (state[i.id] ? " done" : "");
+      row.innerHTML = `<input type="checkbox" ${state[i.id] ? "checked" : ""}>
+        <div><strong>${i.name}</strong>
+        <span class="check-why">${i.why}</span>
+        <span class="check-how">→ ${i.how}${i.link ? ` <a href="${i.link}" target="_blank" rel="noopener">Open ↗</a>` : ""}</span></div>`;
+      $("input", row).addEventListener("change", (e) => {
+        setCheck("gem-integrations", i.id, e.target.checked);
+        renderIntegrations();
+      });
+      wrap.appendChild(row);
+    });
+    const done = GEM.integrations.filter(i => state[i.id]).length;
+    const pct = Math.round(done / GEM.integrations.length * 100);
+    $("#auto-readiness").textContent = `Hands-off readiness: ${pct}%`;
+    $("#auto-readiness").style.color = pct === 100 ? "var(--green)" : "var(--blue)";
+    $("#auto-readiness-fill").style.width = pct + "%";
+  }
+
+  const openCats = new Set();
+
+  function renderReportCard() {
+    const base = $("#report-baseline");
+    if (!base) return;
+    base.innerHTML = GEM.baselineAudit.map(b =>
+      `<div class="audit-row"><span class="grade-chip" style="color:${b.grade === "?" ? "var(--mist)" : gradeColor(b.grade)}">${b.grade}</span>
+       <div><strong>${b.area}</strong><span>${b.finding}</span></div></div>`).join("");
+
+    const state = getChecks("gem-audit");
+    const wrap = $("#report-categories");
+    wrap.innerHTML = "";
+    let totalPct = 0;
+    GEM.auditCategories.forEach(cat => {
+      const doneCount = cat.checks.filter((_, i) => state[cat.id + "-" + i]).length;
+      const pct = Math.round(doneCount / cat.checks.length * 100);
+      totalPct += pct;
+      const g = letterGrade(pct);
+      const det = document.createElement("details");
+      det.className = "audit-cat";
+      det.innerHTML = `<summary><span class="grade-chip" style="color:${gradeColor(g)}">${g}</span>
+        <strong>${cat.label}</strong><span class="cat-count">${doneCount}/${cat.checks.length}</span></summary>`;
+      cat.checks.forEach((c, i) => {
+        const row = document.createElement("label");
+        row.className = "check-row small" + (state[cat.id + "-" + i] ? " done" : "");
+        row.innerHTML = `<input type="checkbox" ${state[cat.id + "-" + i] ? "checked" : ""}><div>${c}</div>`;
+        $("input", row).addEventListener("change", (e) => {
+          setCheck("gem-audit", cat.id + "-" + i, e.target.checked);
+          renderReportCard();
+        });
+        det.appendChild(row);
+      });
+      det.open = openCats.has(cat.id);
+      det.addEventListener("toggle", () => {
+        if (det.open) openCats.add(cat.id); else openCats.delete(cat.id);
+      });
+      wrap.appendChild(det);
+    });
+    const overall = letterGrade(totalPct / GEM.auditCategories.length);
+    const gpa = $("#report-gpa");
+    gpa.textContent = "Overall: " + overall;
+    gpa.style.color = gradeColor(overall);
+  }
+
   /* ---------------- Dashboard ---------------- */
   function renderDashboard() {
     const s = GEM.getSettings();
@@ -537,10 +725,16 @@
     $("#set-save").addEventListener("click", saveSettingsForm);
     $("#dash-nudge-btn").addEventListener("click", () => switchTab("settings"));
 
+    $("#kpi-save").addEventListener("click", saveKpis);
+
     renderDashboard();
     renderCalendar();
     renderPillarButtons();
     renderReels();
+    renderLeads();
+    renderKpis();
+    renderIntegrations();
+    renderReportCard();
     renderRulebook();
     renderHashtags();
     renderBrandKit();

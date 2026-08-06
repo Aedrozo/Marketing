@@ -714,6 +714,153 @@ I promise every person you send my way gets the same standard: straight answers,
     cta: "💬 Tag them below, or send them my profile. I'll take exceptional care of them — that's a promise.",
     hashtagKeys: ["core", "local", "motivation"],
     designBrief: "Static: warm photo of you mid-conversation/handshake, headline 'SEND THEM SOMEONE WHO CARES.' Minimal text, human feel."
+  },
+
+  /* ===== EXPANDED LIBRARY ===== */
+  {
+    id: "edu-va-loans", pillar: "education", title: "VA loans: the benefit too many veterans never use", format: "Reel",
+    hooks: [
+      "Veterans: you earned a home-buying benefit most of you never use. Let's fix that.",
+      "The most underused military benefit in America? The VA loan. Here's why.",
+      "If you served, this might be the strongest buying tool in the market. 🇺🇸"
+    ],
+    caption: `If you served, you may have earned one of the strongest home-buying tools out there — and so many eligible buyers never use it. 👇
+
+What a VA loan can offer eligible veterans, service members, and some surviving spouses:
+🎖️ $0 down payment options for qualified borrowers
+🎖️ No monthly mortgage insurance
+🎖️ Competitive rates and flexible credit guidelines
+🎖️ Limits on certain fees you can be charged
+🎖️ It's reusable — this isn't a one-time benefit
+
+Common myths:
+❌ "It takes forever to close a VA loan." With a lender who knows the process, VA timelines are competitive.
+❌ "Sellers won't take VA offers." A strong, verified pre-approval and an educated listing agent solve this.
+❌ "I used it once, so it's gone." Entitlement can be restored and reused.
+
+You protected home. Let's get you one. Eligibility and benefits depend on your service history and the VA's requirements — finding out where you stand takes one conversation.`,
+    cta: "🇺🇸 Are you (or someone you love) a veteran with home-buying questions? DM me VA and let's walk through the benefit together.",
+    hashtagKeys: ["core", "education", "firstTimeBuyer"],
+    designBrief: "Reel: respectful, direct talking head. Flag or service imagery kept tasteful, not costume-y. Cover: 'THE BENEFIT YOU EARNED' white type on navy."
+  },
+  {
+    id: "edu-self-employed", pillar: "education", title: "Self-employed? You CAN get a mortgage", format: "Carousel",
+    hooks: [
+      "Self-employed and told you can't get a mortgage? You were told wrong.",
+      "Write-offs helping your taxes but killing your mortgage? There's another way.",
+      "1099? Business owner? Here's how you actually qualify. 👇"
+    ],
+    caption: `The self-employed mortgage problem in one sentence: the write-offs that shrink your tax bill also shrink the income lenders see. 👇
+
+But "harder" is not "impossible" — and it's often not even harder with the right lender:
+
+📄 TRADITIONAL ROUTE
+Two years of tax returns; lenders average your net income. Great if your returns show strong numbers.
+
+🏦 BANK STATEMENT LOANS
+For qualified borrowers, 12-24 months of bank statements can demonstrate income instead of tax returns. Your real cash flow tells the story your write-offs hide.
+
+📈 OTHER PATHS
+Asset-based qualification, co-borrowers, or DSCR loans for investment properties — the menu is bigger than most banks let on.
+
+The worst move: assuming "no" without asking. The second worst: asking a lender who only offers one kind of loan.
+
+You built a business. You can absolutely build home equity too.`,
+    cta: "💼 Self-employed and curious what you'd qualify for? DM me BUSINESS — bring your story, not your tax returns (yet).",
+    hashtagKeys: ["core", "education", "motivation"],
+    designBrief: "Carousel, 5 slides: cover 'SELF-EMPLOYED? YOU CAN BUY.', one path per slide, clean iconography, gold accent for the bank-statement slide."
+  },
+  {
+    id: "edu-dpa", pillar: "education", title: "Down payment assistance is real", format: "Reel",
+    hooks: [
+      "There are programs that help with your down payment — and almost nobody applies.",
+      "The money is there. Most buyers just never ask. Let's talk assistance programs.",
+      "What if the down payment isn't the wall you think it is? 👇"
+    ],
+    caption: `Let's talk about the least-used money in real estate: down payment assistance. 👇
+
+The reality:
+🔹 State and local programs exist to help eligible buyers — especially first-timers — with down payment and closing costs
+🔹 Assistance can come as grants, forgivable loans, or deferred second loans depending on the program
+🔹 Income limits and requirements apply, but they're often higher than people assume
+🔹 California and San Diego County have had multiple programs — availability changes, which is exactly why you ask a lender who tracks them
+
+Why don't more people use these? Two reasons: they don't know the programs exist, and the paperwork scares them off. Both are solvable — the second one is literally my job.
+
+Every program has its own eligibility rules and funds can be limited — the only way to know what's available for YOU is to look at today's list together.`,
+    cta: "🔑 Want to see what assistance you might be eligible for? DM me ASSIST and we'll check the current programs together.",
+    hashtagKeys: ["core", "firstTimeBuyer", "education"],
+    designBrief: "Reel: energetic talking head with text callouts. Cover: 'FREE MONEY? (kind of)' — curiosity gap, then honest explanation inside."
+  },
+  {
+    id: "edu-investor", pillar: "education", title: "DSCR: how investors scale past their W-2", format: "Reel",
+    hooks: [
+      "How do investors own 5 rentals on a normal salary? This loan is the answer.",
+      "The loan that qualifies the PROPERTY, not your paycheck. Investors, listen up.",
+      "Your W-2 doesn't have to cap your rental portfolio. Here's why. 👇"
+    ],
+    caption: `Every investor hits the same wall: your income qualifies you for only so many mortgages. Here's how portfolios grow past it 👇
+
+📈 DSCR = Debt Service Coverage Ratio.
+Instead of qualifying on YOUR income, the lender looks at whether the PROPERTY'S rental income covers its own payment.
+
+Why investors use it:
+🔹 Personal tax returns typically aren't the story — the property's cash flow is
+🔹 Scales with your portfolio instead of being capped by your salary
+🔹 Works for long-term and, with some programs, short-term rentals
+
+The trade-offs (because honesty):
+🔸 Typically larger down payments than owner-occupied loans
+🔸 Rates usually run higher than primary-residence loans
+🔸 The deal has to actually pencil — which is a feature, not a bug: the loan won't let you buy a bad rental
+
+Every program has its own requirements, and investment carries risk — this is education, not a green light. But if you've been told your W-2 is the ceiling… it isn't.`,
+    cta: "🏘️ Building (or dreaming about) a rental portfolio? DM me INVEST and let's run a property's real numbers.",
+    hashtagKeys: ["core", "education", "market"],
+    designBrief: "Reel: confident, numbers-forward talking head. On-screen: simple 'RENT ≥ PAYMENT' equation graphic. Cover: 'QUALIFY THE PROPERTY, NOT YOU.'"
+  },
+  {
+    id: "mkt-refi-check", pillar: "market", title: "When does a refinance actually make sense?", format: "Carousel",
+    hooks: [
+      "'Should I refinance?' — the honest checklist, no sales pitch.",
+      "Refinancing isn't automatically smart. Here's when it actually is. 👇",
+      "The refi math nobody shows you (because it sometimes says 'don't')."
+    ],
+    caption: `Honest refi talk — including when the answer is NO. 👇
+
+A refinance can make sense when:
+✅ The monthly savings repay your closing costs before you plan to move (the "break-even" test)
+✅ You're consolidating expensive debt into one manageable payment — with a plan to not re-run the cards
+✅ You need to restructure: removing someone from the loan, ending mortgage insurance, or changing your term
+✅ You're funding a renovation that adds real value
+
+It usually DOESN'T make sense when:
+❌ The break-even is longer than you'll keep the home
+❌ You're resetting a 30-year clock you've already paid 10 years into (without doing the full math)
+❌ It's driven by a flashy ad instead of your actual numbers
+
+The test is simple: total cost vs. total benefit, over YOUR timeline. Every situation is different — that's not a disclaimer, it's the whole point.`,
+    cta: "🧮 Want the honest math on your loan? DM me REVIEW for a free annual mortgage review — even if the answer is 'stay put.'",
+    hashtagKeys: ["core", "refinance", "education"],
+    designBrief: "Carousel, 6 slides: cover 'SHOULD YOU REFI?', green-check slides then red-X slides, final slide the break-even formula in big type. Wealth-management restraint, gold accents."
+  },
+  {
+    id: "personal-holiday", pillar: "personal", title: "Seasonal / holiday post", format: "Static",
+    hooks: [
+      "From our family to yours — Happy [Holiday]! 🏡",
+      "Wishing you a home full of [warmth/light/gratitude] this [Holiday].",
+      "The GEM Home Team wishes you and yours a wonderful [Holiday]!"
+    ],
+    caption: `From all of us at the GEM Home Team — happy [Holiday]! 🏡
+
+[2-3 personal lines: a genuine reflection tied to the season. What this time of year means for your team, a tradition, a thank-you to clients and partners who trusted you this year.]
+
+Whatever this season looks like at your house — loud and full, quiet and cozy, or somewhere in between — we hope it's spent somewhere that feels like HOME.
+
+That feeling is the entire reason we do what we do.`,
+    cta: "💬 Tell us below: what's your favorite tradition this time of year?",
+    hashtagKeys: ["core", "local", "motivation"],
+    designBrief: "Static: real team photo (seasonal setting if possible) beats any graphic. Navy border frame, small logo. Warm, human, zero sales energy — do NOT add a CTA to buy."
   }
 ];
 
@@ -897,6 +1044,157 @@ GEM.canvaTemplates = [
   { name: "Loan Programs, Explained", url: "https://www.canva.com/d/_E2FJkrNR574e-5", use: "Evergreen educational post — pairs with the loan programs caption in Content Studio" }
 ];
 GEM.canvaFolder = "https://www.canva.com/folder/FAHRfYDqxyQ";
+
+/* ---------- DM Playbook: keyword auto-replies (ManyChat-ready) ---------- */
+GEM.dmKeywords = [
+  { keyword: "GUIDE", trigger: "First-time buyer guide requests",
+    reply: `Hey! 🙌 Here's your free First-Time Buyer Guide: [LINK]\n\nIt covers the full timeline, what lenders actually look at, and the mistakes that delay closings.\n\nQuick question so I can point you the right way — are you hoping to buy in the next 6 months, or planning further out?` },
+  { keyword: "READY", trigger: "Pre-approval intent",
+    reply: `Love it — let's get you fully pre-approved so your offers actually carry weight. 🔑\n\nHere's the link to start securely: [APPLICATION LINK]\n\nIt takes about 15 minutes, and nothing hits your credit until you tell us to run it. Want me to call you first to walk through it? If so, what's the best number and time?` },
+  { keyword: "CREDIT", trigger: "Credit questions",
+    reply: `Good news: you don't need perfect credit to buy — and checking your own score never hurts it. 📊\n\nEvery situation is different, so the honest answer starts with a quick look at yours. Want to grab 15 minutes this week? Here's my calendar: [CALENDAR LINK]` },
+  { keyword: "EQUITY", trigger: "Homeowner equity snapshot",
+    reply: `Smart move — most owners have no idea what their biggest asset is worth. 🏦\n\nSend me your property address and I'll put together your free equity snapshot (no obligation, nothing pulled). You'll get: estimated value, what you owe vs. own, and what your options could look like.` },
+  { keyword: "MARKET", trigger: "Market update subscription",
+    reply: `You got it! 📈 I'll keep you in the loop with San Diego market updates that actually make sense.\n\nSo I can tailor it: are you currently renting, owning, or investing?` },
+  { keyword: "PARTNER", trigger: "Realtor partnership",
+    reply: `Let's do it. ☕ I'm always up for meeting agents who take care of their clients.\n\nHere's my calendar — grab any 20-minute slot: [CALENDAR LINK]\n\nWorst case you get a good coffee and a reliable backup lender. Best case, we close a lot of deals together.` },
+  { keyword: "CALL", trigger: "Strategy call booking",
+    reply: `Perfect — here's my calendar, grab whatever time works: [CALENDAR LINK]\n\n15-20 minutes, zero pressure, no credit pull. You'll leave with actual next steps whether you're buying in 30 days or 2 years. 🎯` },
+  { keyword: "PROGRAMS", trigger: "Loan program questions",
+    reply: `There are more ways to finance a home than most people think — FHA, VA, conventional, bank statement, DSCR, down payment assistance and more. 🧭\n\nThe right one depends on your income, goals, and timeline. Tell me a little about your situation (buying, refinancing, investing?) and I'll point you to the best-fit options.` }
+];
+
+/* ---------- DM Conversation Flows ---------- */
+GEM.dmFlows = [
+  { title: "New follower welcome (send within 24h)",
+    script: `Hey [Name]! Thanks for the follow 🙌 I share straight-talk mortgage and San Diego market content here — no spam, promise.\n\nQuick intro: I'm with the GEM Home Team at NEO Home Loans. Are you a homeowner, hunting for your first place, or here for the market updates?` },
+  { title: "Comment → DM conversion",
+    script: `Saw your comment on my post about [topic] — great question, and I didn't want to leave you a half-answer in the comments.\n\n[2-3 sentence genuine answer]\n\nIf you want, I can run your actual numbers so you're working with facts instead of averages. No pressure either way!` },
+  { title: "Objection: 'Rates are too high right now'",
+    script: `Totally fair — nobody loves today's rates. Two honest thoughts:\n\n1) The payment matters more than the rate. If the payment fits comfortably, waiting has a cost too: rising rents and missed equity.\n\n2) If rates drop later, refinancing is an option; if prices rise while you wait, that's permanent.\n\nNo one can predict rates — but we CAN run your real numbers and see if today's payment actually works for you. Want to look together?` },
+  { title: "Objection: 'Another lender quoted me lower'",
+    script: `That's worth taking seriously — and I'd genuinely rather you get the best deal than win you with talk.\n\nOne ask: compare Loan Estimates, not phone quotes. The advertised rate means nothing without the fees behind it. Send me their LE and I'll give you a straight answer — if their deal is better, I'll tell you to take it. That's a promise.` },
+  { title: "Objection: 'We're just looking / not ready yet'",
+    script: `Perfect — 'just looking' is actually the BEST time to talk. 🙂\n\nThe families who close smoothly in spring are the ones who built the plan in winter. A 15-minute call now means when you ARE ready, you move in days, not months. Zero pressure, no credit pull — just a roadmap. Worth it?` },
+  { title: "Lead qualification (3 questions, natural order)",
+    script: `1) "What's your timeline looking like — months or 'someday'?"\n2) "Will this be your first purchase, or have you bought before?"\n3) "Have you talked to any lender yet about what you'd qualify for?"\n\nThen route: Ready now → pre-approval link. 3-6 months → strategy call. 6+ months → guide + market list + monthly check-in.` }
+];
+
+/* ---------- Email Studio ---------- */
+GEM.emails = [
+  { id: "em-new-lead", title: "New lead — instant reply", timing: "Within 5 minutes of inquiry (automate this)",
+    subjects: ["Great to meet you, [First Name] — here's your next step", "[First Name], your home financing roadmap"],
+    body: `Hi [First Name],\n\nThanks for reaching out — you just did the thing most people put off for months, so you're already ahead.\n\nHere's what happens next:\n\n1. GRAB A TIME: [Calendar link] — 15-20 minutes, phone or Zoom.\n2. WE TALK GOALS: timeline, budget comfort, and what you qualify for today.\n3. YOU GET A PLAN: whether that's "you're ready now" or a simple 6-month roadmap.\n\nNo credit pull until you say go. No pressure, ever. Just clarity.\n\nTalk soon,\n[SIGNATURE]` },
+  { id: "em-followup", title: "No-response follow-up", timing: "Day 3 after inquiry, then day 7",
+    subjects: ["Still thinking it over, [First Name]?", "Your questions, answered in 15 minutes"],
+    body: `Hi [First Name],\n\nI know life gets busy — no worries at all.\n\nWhen you reached out, you had a reason. Whether that was curiosity about what you'd qualify for, a house you saw online, or just being tired of renting — the answer starts the same way: one short conversation with real numbers.\n\nHere's my calendar whenever you're ready: [Calendar link]\n\nAnd if the timing's changed, just tell me "not yet" and I'll simply check in down the road. Deal?\n\n[SIGNATURE]` },
+  { id: "em-annual-review", title: "Annual mortgage review", timing: "Every client, every year (loan anniversary month)",
+    subjects: ["[First Name], it's time for your annual mortgage review", "One year in your home — let's check the numbers"],
+    body: `Hi [First Name],\n\nHappy loan anniversary! 🎉 Once a year, I review every client's mortgage — because your loan was right for THAT year, and life moves.\n\nIn your free 20-minute review we look at:\n• Your current equity position (this number usually surprises people)\n• Whether your rate/term still fits your goals\n• Any life changes worth planning around (renovation, move, investment, college)\n\nMost reviews end with "you're in great shape — see you next year." Some end with a move that saves real money. Either way, you'll know.\n\nGrab a time: [Calendar link]\n\n[SIGNATURE]` },
+  { id: "em-review-request", title: "Post-closing review request", timing: "7-10 days after closing, while the joy is fresh",
+    subjects: ["[First Name], can I ask a small favor?", "One minute of your time = the world to our team"],
+    body: `Hi [First Name],\n\nSeeing you get those keys was the highlight of our month. 🔑\n\nSmall favor: would you share a sentence or two about your experience? Reviews are how families like yours find a team they can trust.\n\nLeave one here (takes about a minute): [Review link — Google/Yelp/Zillow]\n\nIf anything about your experience was less than excellent, reply to this email instead — I want to hear that directly.\n\nThank you for trusting us with your home.\n\n[SIGNATURE]` },
+  { id: "em-referral", title: "Referral cultivation", timing: "60-90 days post-closing + every spring",
+    subjects: ["Who do you know, [First Name]?", "The best compliment you could give us"],
+    body: `Hi [First Name],\n\nHope the new place is feeling like home!\n\nQuick thought: the families we serve best almost always come from people like you. If someone in your circle is renting-but-dreaming, outgrowing their space, or relocating to San Diego — an introduction to a lender who'll actually take care of them is a genuinely valuable gift.\n\nJust reply with their name, or forward them this email. I promise the same standard you got: straight answers, real education, and a team that fights for their closing.\n\nGrateful for you,\n[SIGNATURE]` },
+  { id: "em-agent-intro", title: "Realtor partner introduction", timing: "New agent outreach — personalize the first line",
+    subjects: ["[Agent Name], your buyers deserve a lender who answers on Saturdays", "Coffee? (and a lender who won't embarrass you)"],
+    body: `Hi [Agent Name],\n\n[Personalized line: saw your listing on X / we crossed paths at Y / Z suggested we meet.]\n\nI run marketing-grade pre-approvals and same-day turnarounds for the GEM Home Team at NEO Home Loans here in San Diego. What that means for your deals:\n\n• Weekly file updates to you and both sides — before anyone has to chase\n• Verified pre-approvals that hold up in underwriting (and in multiple-offer fights)\n• Weekend speed for weekend showings\n• Co-branded open house support, done fully RESPA-clean\n\nWorst case: coffee's on me and you gain a reliable backup lender. Calendar: [Calendar link]\n\n[SIGNATURE]` },
+  { id: "em-cold-revival", title: "Cold lead revival", timing: "90+ days silent — send quarterly",
+    subjects: ["[First Name], still house hunting?", "Checking in — the market's moved since we talked"],
+    body: `Hi [First Name],\n\nWhen we last talked, you were thinking about [buying/refinancing]. The market's shifted since then — which might be good news for your plans.\n\nNo pitch, just an open door: if you want an updated look at your numbers, it takes 15 minutes: [Calendar link]\n\nAnd if the dream's on pause, reply "pause" and I'll check back in a few months instead.\n\n[SIGNATURE]` },
+  { id: "em-rate-watch", title: "Rate-watch / market pulse (monthly list email)", timing: "Monthly to opted-in list",
+    subjects: ["Your San Diego market minute — [Month]", "[Month] check-in: what buyers & owners should know"],
+    body: `Hi [First Name],\n\nYour 60-second San Diego update:\n\nTHE MARKET: [2-3 sentences: inventory, competition, pricing trend — keep current and factual]\n\nFOR BUYERS: [1-2 sentences — what this means practically]\n\nFOR OWNERS: [1-2 sentences — equity/refi implications, no predictions]\n\nQuestions about your specific picture? Just reply — a human (me) reads these.\n\n[SIGNATURE]\n\nP.S. Know someone who'd want this monthly note? Forward it — they can join here: [Signup link]` }
+];
+
+/* ---------- Review & Referral Engine ---------- */
+GEM.reviewEngine = {
+  ask: [
+    { title: "Text message ask (day of closing)", script: `[First Name]! CONGRATS again — you're officially HOME 🔑🎉 When the dust settles this week, would you mind sharing a quick review of your experience? It means everything to our small team: [Review link]` },
+    { title: "In-person ask (at the closing table)", script: `"Can I ask you one favor? Families find us almost entirely through reviews from people like you. If you'd share a couple sentences about your experience this week while it's fresh, it would mean the world."` },
+    { title: "The reply-to-review move", script: `Reply publicly to EVERY review within 24 hours. Formula: thank them by name → mention one specific detail of their journey (shows it's not canned) → warm send-off. Prospects read the replies as closely as the reviews.` }
+  ],
+  sources: ["Google Business Profile (highest SEO value — priority)", "Zillow lender profile", "Yelp", "Facebook page recommendations", "Experience.com / Birdeye if the team uses one"]
+};
+
+/* ---------- Integrations: the hands-off stack ---------- */
+GEM.integrations = [
+  { id: "ig-pro", name: "Instagram Professional account", how: "Instagram app → Settings → Account type & tools → Switch to professional account. Free, 2 minutes.", why: "Unlocks scheduling, analytics, and every automation below. Nothing works without this.", link: "https://www.instagram.com" },
+  { id: "fb-link", name: "Facebook Page linked in Meta Business Suite", how: "business.facebook.com → Settings → Linked accounts → connect Instagram to the GEM Lending Team page.", why: "This is the legal/technical bridge that lets software post on your behalf.", link: "https://business.facebook.com" },
+  { id: "scheduler", name: "Scheduler connected (Meta Business Suite / Buffer / Later / Metricool)", how: "Pick one, sign in, click 'Connect Instagram', approve the permissions. Then bulk-import the CSV from the Automation tab monthly.", why: "THE hands-off unlock: every post publishes automatically at the scheduled time.", link: "https://business.facebook.com/latest/composer" },
+  { id: "manychat", name: "ManyChat DM automation", how: "manychat.com → connect Instagram → create one automation per keyword using the scripts in Leads & Email.", why: "Every 'DM me GUIDE' caption converts 24/7 — even while you sleep.", link: "https://manychat.com" },
+  { id: "gbp", name: "Google Business Profile claimed & active", how: "business.google.com → claim 'GEM Lending Team - NEO Home Loans'. One consistent address, phone, and hours.", why: "The #1 driver of 'mortgage lender near me' visibility and the home of your most valuable reviews.", link: "https://business.google.com" },
+  { id: "reviews", name: "Review links saved & in every post-closing flow", how: "Collect your Google / Yelp / Zillow review URLs, paste them into the Leads & Email review templates, and send after every closing.", why: "Reviews are the highest-converting marketing asset a lender has. A system beats good intentions.", link: "" },
+  { id: "linkinbio", name: "Link-in-bio page live", how: "Use gemhometeam.com or a Linktree/Beacons page with: apply link, calendar link, guide download, review link.", why: "Instagram gives you ONE link. Make it route to everything.", link: "" },
+  { id: "crm", name: "Email list / CRM connected", how: "Any CRM or even Mailchimp free tier: import past clients, load the 8 email sequences from Leads & Email.", why: "Past clients are your referral engine — the annual review email alone pays for the whole system.", link: "" }
+];
+
+/* ---------- Online Presence Report Card ---------- */
+GEM.auditCategories = [
+  { id: "instagram", label: "Instagram", checks: [
+    "Handle is discoverable when someone searches your team name",
+    "Bio states who you help, your NMLS ID, and has a link + CTA",
+    "Posting 5+ feed posts weekly (calendar followed)",
+    "Reels weekly with your face in them",
+    "Stories 3+ per day with interactive stickers",
+    "Every comment & DM answered within 24 hours",
+    "Highlights organized (Reviews, About, FAQ, Just Closed)"
+  ]},
+  { id: "google", label: "Google & Reviews", checks: [
+    "Google Business Profile claimed and verified",
+    "10+ Google reviews",
+    "Every review gets a personalized public reply within 24h",
+    "Review ask is automatic after every closing",
+    "Zillow lender profile has 5+ reviews",
+    "Yelp page monitored and responded to"
+  ]},
+  { id: "website", label: "Website & SEO", checks: [
+    "Site loads fast on mobile and has a clear 'start here' path",
+    "NMLS IDs and Equal Housing statement visible",
+    "Lead capture (calendar or application link) above the fold",
+    "Team page with real photos and bios",
+    "Reviews/testimonials displayed on site"
+  ]},
+  { id: "consistency", label: "Brand Consistency", checks: [
+    "Same team name everywhere (pick ONE: GEM Home Team vs GEM Lending Team)",
+    "Same logo, colors, and headshots across all platforms",
+    "Same address & phone on every listing (NAP consistency)",
+    "Same handle/username pattern on every platform"
+  ]},
+  { id: "network", label: "LinkedIn & Facebook", checks: [
+    "LinkedIn profiles active with weekly reposts of your content",
+    "Facebook page posting the same calendar via Meta Business Suite",
+    "Nextdoor presence claimed and occasionally active",
+    "Personal profiles mention the team and link out"
+  ]},
+  { id: "conversion", label: "Conversion System", checks: [
+    "DM keyword automations live for every caption keyword",
+    "Email sequences loaded and firing (new lead, follow-up, annual review)",
+    "KPIs logged monthly in the dashboard",
+    "Every lead gets a response within 1 hour during business hours"
+  ]}
+];
+
+/* Baseline audit — public-presence findings, August 2026 */
+GEM.baselineAudit = [
+  { grade: "A-", area: "Website", finding: "gemhometeam.com is live with Megan's NMLS in the page title — strong foundation. Add visible lead capture + testimonials if not present." },
+  { grade: "B+", area: "Facebook", finding: "GEM Lending Team page is active with correct NMLS branding. Connect it to the posting calendar so it publishes automatically alongside Instagram." },
+  { grade: "B", area: "Reviews", finding: "11 Yelp reviews with strong sentiment, 5★ on Experience.com, SDVoyager press feature. Gap: Zillow/Morfi profiles thin, Google review count unverified — the review engine should push Google first." },
+  { grade: "C", area: "Brand consistency", finding: "You appear as BOTH 'GEM Home Team' and 'GEM Lending Team', with two different addresses listed publicly (Willow Creek Rd, San Diego vs 662 Encinitas Blvd). Pick one name + one address everywhere — this directly affects local search ranking." },
+  { grade: "D", area: "Instagram", finding: "The team's Instagram did not surface in public search results at all — your primary content channel is currently your least discoverable asset. Fix: consistent handle, NMLS + keywords in bio, then volume via the calendar." },
+  { grade: "?", area: "Google Business Profile", finding: "Could not verify a claimed GBP listing from here. If unclaimed, this is the single highest-ROI 30 minutes on this list." }
+];
+
+/* ---------- KPI definitions ---------- */
+GEM.kpiFields = [
+  { key: "followers", label: "IG Followers" },
+  { key: "leads", label: "Leads (DMs/forms)" },
+  { key: "calls", label: "Strategy calls" },
+  { key: "apps", label: "Applications" },
+  { key: "closings", label: "Closings" }
+];
 
 /* ---------- Design System: "Top 1%" playbook ---------- */
 GEM.designPlaybook = {
