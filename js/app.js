@@ -380,7 +380,8 @@
       ["Deep Blue", GEM.brand.colors.blueDeep, "Hover states, secondary accents"],
       ["White", GEM.brand.colors.white, "Headlines and body on navy"],
       ["Mist", GEM.brand.colors.mist, "Secondary text on navy"],
-      ["Gem Gold", GEM.brand.colors.gold, "Wealth/equity moments ONLY — use sparingly"]
+      ["Gem Gold", GEM.brand.colors.gold, "Wealth/equity moments ONLY — use sparingly"],
+      ["Cloud", GEM.brand.colors.cloud, "Warm off-white — light slides in the GEM card style"]
     ];
     colors.innerHTML = entries.map(([name, hex, use]) =>
       `<button class="swatch" title="Click to copy ${hex}" data-hex="${hex}">

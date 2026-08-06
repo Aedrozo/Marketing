@@ -18,17 +18,18 @@ GEM.brand = {
     blueDeep: "#1E90C9",
     white: "#FFFFFF",
     mist: "#B8D4E0",
-    gold: "#E8C468"
+    gold: "#E8C468",
+    cloud: "#F7F4EF"
   }
 };
 
 /* ---------- Team Roster (from gemhometeam.com / public profiles) ---------- */
 GEM.team = [
-  { name: "Megan Sawamura", role: "Producing Branch Manager", nmls: "972639" },
-  { name: "Anthony Edrozo", role: "Loan Officer", nmls: "" },
-  { name: "Sonny Alquizar", role: "Loan Officer", nmls: "960861" },
-  { name: "Camryn", role: "Team Member", nmls: "" },
-  { name: "Kevin", role: "Team Member", nmls: "" }
+  { name: "Megan Sawamura", role: "Mortgage Advisor · Branch Manager", nmls: "972639", onFile: "structuring your loan and leading your strategy", knownFor: "answering texts at superhuman speed", offClock: "exploring San Diego's best food spots" },
+  { name: "Camryn Carroll", role: "Loan Team", nmls: "2118766", onFile: "keeping your loan moving every single day", knownFor: "turning chaos into checklists", offClock: "beach days and iced coffee" },
+  { name: "Anthony Edrozo", role: "Loan Team", nmls: "2829800", onFile: "guiding you from application to keys", knownFor: "making complex numbers make sense", offClock: "golf and family time" },
+  { name: "Sonny Alquizar", role: "Loan Team", nmls: "1591708", onFile: "finding the right program for your situation", knownFor: "calm answers under deadline pressure", offClock: "hoops and family BBQs" },
+  { name: "Kevin Torres", role: "Loan Team", nmls: "1915366", onFile: "your first call and your last question", knownFor: "making first-time buyers feel at ease", offClock: "park days with his dog" }
 ];
 GEM.office = "662 Encinitas Blvd, Encinitas, CA · Serving San Diego County";
 GEM.links = {
@@ -112,7 +113,7 @@ Truth: Many loan programs allow much lower scores than people assume. The only w
 The buyers who win aren't the ones with perfect finances. They're the ones who got their questions answered early.`,
     cta: "🔑 Not sure where you stand? Send me the word CREDIT and let's map it out — zero pressure, zero obligation.",
     hashtagKeys: ["core", "education", "firstTimeBuyer"],
-    designBrief: "Reel: talking-head with bold kinetic captions. Cover frame: navy background, huge white text '3 CREDIT MYTHS', myth #1 teased in blue. On-screen text flips ❌→✅ per myth."
+    designBrief: "Reel: clean talking head, natural light, simple white captions (CapCut auto-captions, no bounce effects). Cover: your real photo with '3 CREDIT MYTHS' in the GEM card style. One quiet text overlay per myth — no flashy transitions."
   },
   {
     id: "edu-down-payment", pillar: "education", title: "You don't need 20% down", format: "Carousel",
@@ -184,7 +185,7 @@ The neutral third parties who make sure money and ownership transfer safely.
 💡 Pro tip: You'll get a Loan Estimate early in the process that lays out every line item — and I walk my clients through it page by page so nothing at the closing table is a surprise.`,
     cta: "📋 Want a plain-English walkthrough before you buy? DM me COSTS and I'll send you my closing-cost breakdown.",
     hashtagKeys: ["core", "education", "firstTimeBuyer"],
-    designBrief: "Reel: whiteboard-style motion graphics or talking head with 3 animated buckets filling. Big numerals 1-2-3 in brand blue on navy."
+    designBrief: "Reel: straight talking head at your actual desk, one clean text overlay per bucket (1 · 2 · 3 in brand blue). Professional and unhurried — this is an advisor explaining, not a TikTok effect reel."
   },
   {
     id: "edu-rate-vs-apr", pillar: "education", title: "Interest rate vs APR", format: "Carousel",
@@ -253,7 +254,7 @@ Those last two go into your ESCROW account. Think of it as a forced savings acco
 📬 Once a year you'll get an escrow analysis. If taxes or insurance went up, your payment adjusts. That's why a "fixed" mortgage payment can still change slightly — the LOAN part is fixed, the taxes and insurance aren't.`,
     cta: "❓Got a mortgage question you've been embarrassed to ask? Drop it below or DM me — I'll answer, no judgment. 👇",
     hashtagKeys: ["core", "education"],
-    designBrief: "Reel: 4 animated jars filling (P-I-T-I) on navy background. Bold single-word overlays. End: 'Save this for house-hunting season.'"
+    designBrief: "Reel: talking head, counting the four letters on your fingers, one word overlay per letter (P·I·T·I). Real, simple, confident. End card in the GEM card style: 'Save this for house-hunting season.'"
   },
 
   {
@@ -506,11 +507,11 @@ That's the standard. Every file. Every family.`,
     ],
     caption: `When you work with GEM Home Team, you get exactly that — a TEAM. 🤝
 
-👑 Megan Sawamura — Producing Branch Manager (NMLS #972639). [1-2 lines: superpower, fun fact]
-⭐ Anthony Edrozo — Loan Officer. [1-2 lines]
-⭐ Sonny Alquizar — Loan Officer. [1-2 lines]
-⭐ Camryn — [role + 1-2 lines]
-⭐ Kevin — [role + 1-2 lines]
+🔹 Megan Sawamura (NMLS #972639) — structuring your loan and leading your strategy. Known for answering texts at superhuman speed.
+🔹 Camryn Carroll (NMLS #2118766) — keeping your loan moving every single day. Turns chaos into checklists.
+🔹 Anthony Edrozo (NMLS #2829800) — guiding you from application to keys. Makes complex numbers make sense.
+🔹 Sonny Alquizar (NMLS #1591708) — finding the right program for your situation. Calm answers under deadline pressure.
+🔹 Kevin Torres (NMLS #1915366) — your first call and your last question. Makes first-time buyers feel at ease.
 
 Why it matters to you:
 🔹 Someone always knows the status of your file
@@ -882,14 +883,14 @@ GEM.reels = [
     ]
   },
   {
-    id: "reel-payment-breakdown", title: "Where Your Payment Actually Goes (PITI)", length: "30s", difficulty: "Easy · talking head + graphics",
+    id: "reel-payment-breakdown", title: "Where Your Payment Actually Goes (PITI)", length: "30s", difficulty: "Easy · talking head",
     audio: "Calm lo-fi or trending explainer audio",
     cover: "'WHERE DOES IT GO?' + 4 jar icons",
     scenes: [
       { time: "0-3s", shot: "Hold up 4 fingers", vo: "Your mortgage payment is actually FOUR payments. Nobody tells you this.", text: "4 PAYMENTS IN 1 🤯" },
-      { time: "3-10s", shot: "Graphic: jar 1 fills", vo: "One: principal — actually paying off your house.", text: "1️⃣ PRINCIPAL" },
-      { time: "10-16s", shot: "Graphic: jar 2 fills", vo: "Two: interest — the cost of borrowing.", text: "2️⃣ INTEREST" },
-      { time: "16-24s", shot: "Graphic: jars 3-4 fill", vo: "Three and four: property taxes and insurance, saved up monthly in escrow so you're never blindsided by a giant bill.", text: "3️⃣ TAXES 4️⃣ INSURANCE" },
+      { time: "3-10s", shot: "Talking head, hold up 1 finger", vo: "One: principal — actually paying off your house.", text: "1. PRINCIPAL" },
+      { time: "10-16s", shot: "Talking head, 2 fingers", vo: "Two: interest — the cost of borrowing.", text: "2. INTEREST" },
+      { time: "16-24s", shot: "Talking head, 3 then 4 fingers", vo: "Three and four: property taxes and insurance, saved up monthly in escrow so you're never blindsided by a giant bill.", text: "3. TAXES  4. INSURANCE" },
       { time: "24-30s", shot: "Talking head close", vo: "That's PITI. Now you know more than most homeowners. Follow for more of this.", text: "P.I.T.I. ✅ FOLLOW ➕" }
     ]
   },
@@ -907,12 +908,12 @@ GEM.reels = [
     ]
   },
   {
-    id: "reel-rent-vs-own", title: "Renting vs Owning: The 5-Year Picture", length: "35s", difficulty: "Medium · talking head + graphics",
-    audio: "Dramatic-but-clean trending audio",
-    cover: "'5 YEARS OF RENT' with rising stack graphic",
+    id: "reel-rent-vs-own", title: "Renting vs Owning: The 5-Year Picture", length: "35s", difficulty: "Easy · talking head",
+    audio: "Calm, confident track — low under voice",
+    cover: "Your photo, GEM card style: '5 YEARS OF RENT.'",
     scenes: [
-      { time: "0-4s", shot: "Talking head, serious", vo: "Five years of rent at two thousand a month is one hundred twenty thousand dollars. Gone.", text: "5 YRS RENT = $120K 💸" },
-      { time: "4-14s", shot: "Graphic: two columns build", vo: "Renting buys flexibility — and that's worth something. But every payment builds your landlord's equity, not yours.", text: "THEIR equity, not yours" },
+      { time: "0-4s", shot: "Talking head, serious", vo: "Five years of rent at two thousand a month is one hundred twenty thousand dollars. Gone.", text: "5 YRS RENT = $120K" },
+      { time: "4-14s", shot: "Talking head, slight punch-in", vo: "Renting buys flexibility — and that's worth something. But every payment builds your landlord's equity, not yours.", text: "THEIR equity, not yours" },
       { time: "14-26s", shot: "Talking head", vo: "Owning flips it: part of every payment comes back to you as equity, and a fixed loan means the biggest bill of your life stops rising.", text: "EQUITY = money you keep" },
       { time: "26-35s", shot: "Warm close", vo: "Renting isn't wrong — but it should be a choice, not a life sentence. Want to see your real numbers? DM me the word MATH.", text: "DM 'MATH' 🧮" }
     ]
@@ -1030,9 +1031,9 @@ GEM.complianceRules = {
   ],
   disclaimerTemplate: (s) =>
 `—
-{NAME} · NMLS #{NMLS}
-GEM Home Team · NEO Home Loans, powered by Better Mortgage Corporation · NMLS #{CO_NMLS}
-Equal Housing Lender. {STATES}
+{NAME} · NMLS #{NMLS} · GEM Home Team
+NEO Home Loans is a division of Better Mortgage Corporation, NMLS #{CO_NMLS} · Equal Housing Lender · nmlsconsumeraccess.org
+{STATES}
 This is not a commitment to lend. All loans subject to credit approval, underwriting, and program guidelines. Terms and availability subject to change. This content is for educational purposes only and is not financial advice — every situation is different.`
 };
 
@@ -1199,10 +1200,12 @@ GEM.kpiFields = [
 /* ---------- Design System: "Top 1%" playbook ---------- */
 GEM.designPlaybook = {
   principles: [
+    { title: "The GEM signature card", body: "Your established carousel layout: left half full-bleed vertical photo, right half content. Eyebrow label in letter-spaced blue caps, name/headline in extra-bold, blue diamond (🔹) bullets with bold lead-ins, footer 'GEM HOME TEAM × NEO' + page counter, thin blue bar at the bottom edge. Alternate warm off-white (#F7F4EF) and navy (#0D2B36) slides through a carousel." },
     { title: "One idea per asset", body: "The top accounts never crowd a slide. One hook, one idea, one CTA. If a slide needs two ideas, it's two slides." },
     { title: "Brand block discipline", body: "Navy #0D2B36 background, white extra-bold headlines, blue #45B6E8 accents, gold #E8C468 only for 'wealth' moments. Never introduce a new color." },
     { title: "Type hierarchy", body: "Headline: extra-bold geometric sans (Montserrat/Poppins ExtraBold), 2 sizes max per slide. Letter-spaced small caps for eyebrows ('MORTGAGE LENDING' style, matching the logo)." },
     { title: "Faces win", body: "Posts with your face outperform graphics 3-5x for local service businesses. Minimum 40% of the grid should include a human." },
+    { title: "Authentic over animated", body: "Nothing should look AI-generated or template-animated: no bouncing text, no stock motion graphics, no clip-art, no effects reels. Real photography, natural light, quiet text overlays, editorial restraint. If a design element could appear in anyone else's feed, it doesn't belong in yours." },
     { title: "Captions always on", body: "80%+ of reels are watched muted. Bold captions, high-contrast, safe-zone aware (nothing in bottom 15% or top 10% of frame)." },
     { title: "The 3-frame rule", body: "Cover text must be readable in the grid thumbnail. If you can't read it at postage-stamp size, it's too small." },
     { title: "White space is luxury", body: "Premium brands breathe. 15%+ margin on every card. Cramped = cheap." },
@@ -1210,7 +1213,7 @@ GEM.designPlaybook = {
   ],
   reelFormula: [
     "HOOK (0-3s): a pattern interrupt — bold claim, myth, or question. Text on screen from frame one.",
-    "RETENTION (3-25s): deliver 2-4 fast points. Change the visual every 3-5 seconds (punch-in, angle, graphic).",
+    "RETENTION (3-25s): deliver 2-4 fast points. Change the visual every 3-5 seconds with a punch-in or angle change — never stock effects or animation templates.",
     "PAYOFF (final 5s): one clear CTA — a DM keyword beats a link every time.",
     "CAPTION: hook line repeated, value expanded, CTA + keyword, hashtags, compliance footer."
   ],
