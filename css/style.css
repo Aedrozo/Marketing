@@ -523,3 +523,85 @@ html { scroll-behavior: auto; }
   flex: none;
 }
 .week-chip { color: var(--chip); font-size: .7rem; }
+
+/* ============================================================
+   GROUPED MENU BAR
+   Direct items for daily drivers; Create / Grow / Brand fold
+   into editorial dropdown panels. Full-screen menu on mobile.
+   ============================================================ */
+.nav { overflow: visible; align-items: center; }
+.nav-group { position: relative; }
+.nav-group-btn {
+  appearance: none; border: none; background: transparent;
+  color: var(--mist-dim); font-family: var(--font);
+  font-size: 0.86rem; font-weight: 600; letter-spacing: 0.05em;
+  padding: 12px 16px 14px; cursor: pointer; white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  display: flex; align-items: center; gap: 6px;
+  transition: color .15s, border-color .15s;
+}
+.nav-group-btn .caret { font-size: .6rem; color: var(--mist-dim); transition: transform .15s; }
+.nav-group-btn:hover { color: var(--mist); }
+.nav-group.active > .nav-group-btn { color: var(--white); border-bottom-color: var(--gold); }
+.nav-group.open > .nav-group-btn { color: var(--white); }
+.nav-group.open > .nav-group-btn .caret { transform: rotate(180deg); }
+.nav-menu {
+  position: absolute; top: calc(100% + 2px); left: 0; z-index: 60;
+  min-width: 250px; padding: 14px 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 18px 44px rgba(2, 10, 14, .55);
+  display: none; flex-direction: column;
+}
+.nav-group.open > .nav-menu { display: flex; }
+.nav-menu-kicker {
+  display: block; padding: 2px 12px 8px;
+  color: var(--gold); font-size: .6rem; font-weight: 700;
+  letter-spacing: .28em; text-transform: uppercase;
+}
+.nav-menu .nav-item {
+  display: block; width: 100%; text-align: left;
+  padding: 9px 12px; border-bottom: none; border-radius: 8px;
+  text-decoration: none; color: var(--mist);
+}
+.nav-menu .nav-item small {
+  display: block; font-weight: 400; font-size: .72rem;
+  color: var(--mist-dim); letter-spacing: 0; margin-top: 1px;
+}
+.nav-menu .nav-item:hover { background: rgba(69, 182, 232, .08); color: var(--white); }
+.nav-menu .nav-item.active { color: var(--white); background: rgba(69, 182, 232, .12); }
+.nav-mobile-btn {
+  display: none; appearance: none; background: transparent;
+  border: 1px solid var(--line); border-radius: 999px;
+  color: var(--mist); font-family: var(--font); font-size: .8rem;
+  font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  padding: 8px 18px; cursor: pointer; margin-left: auto;
+}
+.mobile-menu {
+  position: fixed; inset: 0; z-index: 120;
+  background: linear-gradient(170deg, var(--navy) 0%, var(--ink) 100%);
+  display: none; overflow-y: auto; padding: 64px 26px 40px;
+}
+.mobile-menu.open { display: block; }
+.mobile-menu-close {
+  position: fixed; top: 16px; right: 18px;
+  appearance: none; background: transparent; border: 1px solid var(--line);
+  border-radius: 999px; width: 40px; height: 40px;
+  color: var(--mist); font-size: 1rem; cursor: pointer;
+}
+.mobile-menu-inner { max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; }
+.mobile-menu .nav-menu-kicker { padding: 22px 0 6px; }
+.mobile-menu .nav-item {
+  display: block; width: 100%; text-align: left; text-decoration: none;
+  font-family: var(--font-display); font-size: 1.35rem; font-weight: 500;
+  letter-spacing: .02em; color: var(--mist);
+  padding: 8px 0; border-bottom: none;
+}
+.mobile-menu .nav-item.active { color: var(--white); }
+.mobile-menu .nav-item.active::after { content: ""; display: inline-block; width: 22px; height: 1px; background: var(--gold); margin-left: 12px; vertical-align: middle; }
+@media (max-width: 860px) {
+  .nav > .nav-item, .nav .nav-group { display: none; }
+  .nav-mobile-btn { display: block; }
+  .nav { padding: 6px 0 10px; }
+}

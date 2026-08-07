@@ -30,19 +30,62 @@
   <nav class="nav" aria-label="Sections">
     <button class="nav-item active" data-tab="dashboard">Dashboard</button>
     <button class="nav-item" data-tab="calendar">Calendar</button>
-    <button class="nav-item" data-tab="studio">Content Studio</button>
-    <button class="nav-item" data-tab="library">Library</button>
-    <button class="nav-item" data-tab="reels">Reel Studio</button>
-    <button class="nav-item" data-tab="leads">Leads &amp; Email</button>
-    <button class="nav-item" data-tab="compliance">Compliance</button>
-    <button class="nav-item" data-tab="hashtags">Hashtags</button>
-    <button class="nav-item" data-tab="brand">Brand Kit</button>
-    <button class="nav-item" data-tab="report">Report Card</button>
-    <button class="nav-item" data-tab="automation">Automation</button>
-    <a class="nav-item" href="editor.html" style="text-decoration:none">Studio Editor</a>
+    <div class="nav-group" data-group="create">
+      <button class="nav-group-btn" aria-haspopup="true" aria-expanded="false">Create<span class="caret">▾</span></button>
+      <div class="nav-menu" role="menu">
+        <span class="nav-menu-kicker">Make the content</span>
+        <button class="nav-item" data-tab="studio">Content Studio<small>Posts, captions &amp; hooks</small></button>
+        <button class="nav-item" data-tab="reels">Reel Studio<small>Shot-by-shot scripts</small></button>
+        <a class="nav-item" href="editor.html">Studio Editor<small>Photo &amp; video editing</small></a>
+        <button class="nav-item" data-tab="library">Library<small>Ready-to-post graphics</small></button>
+        <button class="nav-item" data-tab="hashtags">Hashtags<small>Curated tag sets</small></button>
+      </div>
+    </div>
+    <div class="nav-group" data-group="grow">
+      <button class="nav-group-btn" aria-haspopup="true" aria-expanded="false">Grow<span class="caret">▾</span></button>
+      <div class="nav-menu" role="menu">
+        <span class="nav-menu-kicker">Turn attention into business</span>
+        <button class="nav-item" data-tab="leads">Leads &amp; Email<small>DM scripts &amp; sequences</small></button>
+        <button class="nav-item" data-tab="automation">Automation<small>Integrations &amp; exports</small></button>
+        <button class="nav-item" data-tab="report">Report Card<small>Audit your presence</small></button>
+      </div>
+    </div>
+    <div class="nav-group" data-group="brand">
+      <button class="nav-group-btn" aria-haspopup="true" aria-expanded="false">Brand<span class="caret">▾</span></button>
+      <div class="nav-menu" role="menu">
+        <span class="nav-menu-kicker">Stay on brand, stay compliant</span>
+        <button class="nav-item" data-tab="brand">Brand Kit<small>Colors, team &amp; voice</small></button>
+        <button class="nav-item" data-tab="compliance">Compliance<small>Check any copy</small></button>
+      </div>
+    </div>
     <button class="nav-item" data-tab="settings">Settings</button>
+    <button class="nav-mobile-btn" id="nav-mobile-btn" aria-label="Open menu">Menu</button>
   </nav>
 </header>
+
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close menu">✕</button>
+  <div class="mobile-menu-inner">
+    <span class="nav-menu-kicker">Overview</span>
+    <button class="nav-item" data-tab="dashboard">Dashboard</button>
+    <button class="nav-item" data-tab="calendar">Calendar</button>
+    <span class="nav-menu-kicker">Create</span>
+    <button class="nav-item" data-tab="studio">Content Studio</button>
+    <button class="nav-item" data-tab="reels">Reel Studio</button>
+    <a class="nav-item" href="editor.html">Studio Editor</a>
+    <button class="nav-item" data-tab="library">Library</button>
+    <button class="nav-item" data-tab="hashtags">Hashtags</button>
+    <span class="nav-menu-kicker">Grow</span>
+    <button class="nav-item" data-tab="leads">Leads &amp; Email</button>
+    <button class="nav-item" data-tab="automation">Automation</button>
+    <button class="nav-item" data-tab="report">Report Card</button>
+    <span class="nav-menu-kicker">Brand</span>
+    <button class="nav-item" data-tab="brand">Brand Kit</button>
+    <button class="nav-item" data-tab="compliance">Compliance</button>
+    <span class="nav-menu-kicker">Setup</span>
+    <button class="nav-item" data-tab="settings">Settings</button>
+  </div>
+</div>
 
 <main class="wrap">
 

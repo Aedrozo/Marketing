@@ -35,12 +35,24 @@
   }
 
   /* ---------------- Navigation ---------------- */
+  function closeMenus() {
+    $$(".nav-group.open").forEach(g => {
+      g.classList.remove("open");
+      const btn = $(".nav-group-btn", g);
+      if (btn) btn.setAttribute("aria-expanded", "false");
+    });
+    const mm = $("#mobile-menu");
+    if (mm) { mm.classList.remove("open"); mm.setAttribute("aria-hidden", "true"); }
+  }
   function switchTab(id) {
     $$(".nav-item[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === id));
+    $$(".nav-group").forEach(g => g.classList.toggle("active", !!$(`.nav-item[data-tab="${id}"]`, g)));
     $$(".panel").forEach(p => p.classList.toggle("active", p.id === "panel-" + id));
+    closeMenus();
     window.scrollTo({ top: 0 });
     localStorage.setItem("gem-tab", id);
   }
+  GEM.go = switchTab;
 
   /* ---------------- Utilities ---------------- */
   function flashCopied(btn) {
@@ -1023,6 +1035,27 @@
     calYear = now.getFullYear(); calMonth = now.getMonth();
 
     $$(".nav-item[data-tab]").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+    $$(".nav-group-btn").forEach(btn => btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const group = btn.closest(".nav-group");
+      const wasOpen = group.classList.contains("open");
+      closeMenus();
+      if (!wasOpen) {
+        group.classList.add("open");
+        btn.setAttribute("aria-expanded", "true");
+      }
+    }));
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".nav-group") && !e.target.closest("#mobile-menu")) closeMenus();
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenus(); });
+    $("#nav-mobile-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const mm = $("#mobile-menu");
+      mm.classList.add("open");
+      mm.setAttribute("aria-hidden", "false");
+    });
+    $("#mobile-menu-close").addEventListener("click", closeMenus);
 
     $("#cal-prev").addEventListener("click", () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
     $("#cal-next").addEventListener("click", () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });
