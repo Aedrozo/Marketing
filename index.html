@@ -121,8 +121,13 @@
     <div class="card">
       <div class="block-head" style="margin-top:0">
         <h4>1 · Choose a pillar</h4>
-        <button class="btn small" id="studio-shuffle">Surprise me</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn small" id="studio-ai-ideas">AI: brainstorm this month's ideas</button>
+          <button class="btn small" id="studio-shuffle">Surprise me</button>
+        </div>
       </div>
+      <div class="copy-block hidden" id="studio-ideas-out" style="white-space:pre-wrap"></div>
+      <p class="footnote hidden" id="studio-ideas-note"></p>
       <div class="pillar-row" id="studio-pillars"></div>
       <div class="hidden">
         <div class="block-head"><h4>2 · Choose a topic</h4></div>
@@ -209,6 +214,19 @@
     <div class="panel-head">
       <h2>Leads &amp; Email</h2>
       <p>Content earns attention — this tab converts it. DM keyword auto-replies (load these into ManyChat), conversation scripts for real humans, email sequences, and the review &amp; referral engine.</p>
+    </div>
+
+    <div class="card">
+      <span class="kicker">AI reply assistant</span>
+      <h3>A lead DMed something the templates don't cover? Draft it with AI</h3>
+      <div class="field"><label for="dm-in">Paste their message</label>
+        <textarea id="dm-in" placeholder="e.g. 'hey, my lease is up in june and my credit is like 640, is it even worth talking or should I wait'"></textarea></div>
+      <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn primary" id="dm-ai">Draft a reply with AI</button>
+        <button class="btn hidden" id="dm-copy">Copy reply</button>
+      </div>
+      <div class="copy-block hidden" id="dm-out" style="margin-top:12px;white-space:pre-wrap"></div>
+      <p class="footnote hidden" id="dm-note"></p>
     </div>
 
     <div class="card">

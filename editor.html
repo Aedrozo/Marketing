@@ -38,6 +38,11 @@
 
   .wrap { max-width: 1400px; margin: 0 auto; padding: 18px; }
   .workspace { display: grid; grid-template-columns: 1fr 340px; gap: 18px; align-items: start; }
+  @media (min-width: 981px) {
+    /* keep the image/preview in view while working the tool panels */
+    .workspace > div:first-child { position: sticky; top: 72px; }
+    .stage canvas { max-height: 62vh; }
+  }
   @media (max-width: 980px) { .workspace { grid-template-columns: 1fr; } }
 
   .stage {
@@ -191,14 +196,65 @@
     <div class="tools">
       <details class="tool" open id="tool-adjust">
         <summary>Adjust</summary>
-        <div class="tool-body" id="ph-sliders"></div>
+        <div class="tool-body">
+          <button class="btn small gold" id="ph-auto">Auto-enhance</button>
+          <div id="ph-sliders"></div>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>Curves &amp; histogram</summary>
+        <div class="tool-body">
+          <div class="chips" id="curve-channels">
+            <button class="chip active" data-ch="rgb">RGB</button>
+            <button class="chip" data-ch="r" style="color:#ff8a8a">R</button>
+            <button class="chip" data-ch="g" style="color:#8aff9e">G</button>
+            <button class="chip" data-ch="b" style="color:#8ac6ff">B</button>
+          </div>
+          <canvas id="curve-canvas" width="300" height="200" style="width:100%;border:1px solid var(--line);border-radius:8px;background:var(--navy-2);touch-action:none;cursor:crosshair"></canvas>
+          <div class="row">
+            <button class="btn small" id="curve-reset">Reset channel</button>
+            <button class="btn small" id="curve-reset-all">Reset all</button>
+          </div>
+          <p class="note">Click the curve to add a point, drag to shape it, double-click a point to remove. The same tone-curve engine as desktop editors.</p>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>Color mixer (HSL)</summary>
+        <div class="tool-body">
+          <div class="chips" id="hsl-bands"></div>
+          <div class="slider-row"><label for="hsl-h">Hue</label><input type="range" id="hsl-h" min="-100" max="100" value="0"><output id="hsl-h-val">0</output></div>
+          <div class="slider-row"><label for="hsl-s">Saturation</label><input type="range" id="hsl-s" min="-100" max="100" value="0"><output id="hsl-s-val">0</output></div>
+          <div class="slider-row"><label for="hsl-l">Luminance</label><input type="range" id="hsl-l" min="-100" max="100" value="0"><output id="hsl-l-val">0</output></div>
+          <div class="row"><button class="btn small" id="hsl-reset">Reset mixer</button></div>
+          <p class="note">Target one color family at a time — deepen a sky, mute a lawn, warm skin tones — without touching the rest of the photo.</p>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>Retouch (clone stamp)</summary>
+        <div class="tool-body">
+          <div class="row">
+            <button class="btn small" id="rt-toggle">Start retouching</button>
+            <button class="btn small" id="rt-source">Pick source</button>
+            <button class="btn small danger" id="rt-clear">Clear retouches</button>
+          </div>
+          <div class="slider-row"><label for="rt-size">Brush size</label><input type="range" id="rt-size" min="10" max="120" value="40"><output id="rt-size-val">40</output></div>
+          <p class="note" id="rt-hint">Remove trash cans, cords, and blemishes: press "Pick source", click a clean area, then paint over what you want gone. The frame border hides while retouching.</p>
+        </div>
       </details>
 
       <details class="tool">
         <summary>Presets &amp; LUTs</summary>
         <div class="tool-body">
           <div class="chips" id="ph-presets"></div>
-          <p class="note">Built for the GEM look — clean, editorial, never over-filtered.</p>
+          <div class="chips" id="ph-custom-presets"></div>
+          <div class="row">
+            <input type="text" id="preset-name" placeholder="Name this look…" style="flex:1;min-width:120px;background:var(--navy-2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:.82rem">
+            <button class="btn small" id="preset-save">Save my look</button>
+          </div>
+          <p class="note">Built for the GEM look — clean, editorial, never over-filtered. Save your own looks (sliders + curves + mixer) and reuse them on every photo; double-click a saved look to delete it.</p>
           <div class="row">
             <button class="btn small" id="ph-lut-btn">Import LUT (.cube)</button>
             <span class="note" id="ph-lut-name"></span>
@@ -359,6 +415,30 @@
           <div class="chips" id="vd-aspects"></div>
           <div class="field"><label for="vd-fit">Fill mode</label>
             <select id="vd-fit"><option value="cover" selected>Fill the frame (crop edges)</option><option value="contain">Fit inside (letterbox)</option></select></div>
+          <div class="row">
+            <button class="btn small" id="vd-bg-add">Add backdrop image</button>
+            <button class="btn small danger hidden" id="vd-bg-clear">Remove backdrop</button>
+          </div>
+          <p class="note">A backdrop shows behind letterboxed clips — and behind green-screened footage (enable Green screen on a clip to key yourself onto it).</p>
+        </div>
+      </details>
+
+      <details class="tool">
+        <summary>AI tools</summary>
+        <div class="tool-body">
+          <div class="field"><label for="vd-dir-desc">AI Director — describe the video you want</label>
+            <textarea id="vd-dir-desc" placeholder="e.g. 30-second reel: why waiting for rates to drop can cost buyers more, ending with a DM call-to-action…"></textarea></div>
+          <button class="btn small gold" id="vd-dir-btn">Direct my video</button>
+          <div class="row" style="align-items:flex-end">
+            <div class="field" style="flex:1"><label for="vd-gen-desc">AI segment — a generated branded scene in your timeline</label>
+              <input type="text" id="vd-gen-desc" placeholder="e.g. 3 stats about San Diego equity growth"></div>
+            <div class="field"><label for="vd-gen-dur">Length</label>
+              <select id="vd-gen-dur"><option value="4">4s</option><option value="6" selected>6s</option><option value="8">8s</option></select></div>
+          </div>
+          <button class="btn small gold" id="vd-gen-btn">Create AI segment</button>
+          <button class="btn small" id="vd-ai-frame">Caption this moment (AI looks at the frame)</button>
+          <div class="ai-out" id="vd-ai-out"></div>
+          <p class="note">The Director plans captions and writes your voiceover script; AI segments are branded motion scenes generated right into the timeline. Uses the Claude API key from Settings.</p>
         </div>
       </details>
 
@@ -405,7 +485,8 @@
             <button class="btn small danger" id="vd-vo-del">✕</button>
           </div>
           <div class="slider-row"><label for="vd-vo-vol">Voice vol</label><input type="range" id="vd-vo-vol" min="0" max="100" value="100"><output id="vd-vo-vol-val">100%</output></div>
-          <p class="note">Recording plays the timeline while you narrate — wear headphones to avoid echo.</p>
+          <label class="note" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="vd-vo-cc" checked> Auto-captions from my voice while recording</label>
+          <p class="note">Recording plays the timeline while you narrate — wear headphones to avoid echo. Auto-captions listen as you speak and place timed caption cards (Chrome, online).</p>
         </div>
       </details>
 

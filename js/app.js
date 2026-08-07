@@ -1037,6 +1037,53 @@
     $("#dash-nudge-btn").addEventListener("click", () => switchTab("settings"));
 
     $("#kpi-save").addEventListener("click", saveKpis);
+    /* ---- AI: monthly idea brainstorm (Studio) ---- */
+    $("#studio-ai-ideas").addEventListener("click", async (e) => {
+      const btn = e.target, note = $("#studio-ideas-note"), out = $("#studio-ideas-out");
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = "Thinking…";
+      note.classList.add("hidden");
+      try {
+        const month = new Date().toLocaleString("en-US", { month: "long", year: "numeric" });
+        const text = await GEM.aiGenerate(
+          `Brainstorm 10 fresh Instagram post ideas for ${month} for GEM Home Team (San Diego mortgage). For each, one line: the pillar (Education / Market Pulse / Client Stories / Personal Brand / Engagement / Realtor Partners / Call To Action), a scroll-stopping hook, and the DM keyword CTA. Consider the season, San Diego market dynamics, and what performs on Instagram right now. Number them 1-10.`);
+        out.textContent = text;
+        out.classList.remove("hidden");
+      } catch (err) {
+        note.textContent = "⚠️ " + err.message;
+        note.classList.remove("hidden");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
+
+    /* ---- AI: DM reply assistant (Leads) ---- */
+    $("#dm-ai").addEventListener("click", async (e) => {
+      const btn = e.target, note = $("#dm-note"), out = $("#dm-out");
+      const msg = $("#dm-in").value.trim();
+      note.classList.add("hidden");
+      if (!msg) { note.textContent = "Paste the lead's message first."; note.classList.remove("hidden"); return; }
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = "Thinking…";
+      try {
+        const reply = await GEM.aiGenerate(
+          `A potential client sent this Instagram DM:\n\n"${msg}"\n\nWrite the reply as ${GEM.getSettings().name}. Warm, human, 2-4 short sentences — like texting, not a formal letter. Acknowledge their situation specifically, give one genuinely useful reassurance or insight (no rate quotes, no approval promises), ask ONE qualifying question, and offer a low-pressure next step. No hashtags, no disclosure footer (it's a DM).`);
+        out.textContent = reply;
+        out.classList.remove("hidden");
+        $("#dm-copy").classList.remove("hidden");
+      } catch (err) {
+        note.textContent = "⚠️ " + err.message;
+        note.classList.remove("hidden");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
+    $("#dm-copy").addEventListener("click", (e) => copyText($("#dm-out").textContent, e.target));
+
     $("#kpi-import-btn").addEventListener("click", () => $("#kpi-import").click());
     $("#kpi-import").addEventListener("change", (e) => {
       if (e.target.files && e.target.files[0]) importInsightsCSV(e.target.files[0]);

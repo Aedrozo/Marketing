@@ -44,6 +44,16 @@
       if (r.pattern.test(text)) findings.push({ level: "caution", id: r.id, label: r.label, why: r.why });
     });
 
+    // Unfilled data placeholders — AI is instructed to never invent numbers,
+    // so [X]%-style placeholders must be replaced with verified figures before posting
+    if (/\[(X|AMOUNT|MONTH|YEAR|DATE|RATE|PRICE|NUMBER|N|CITY|SOURCE)[^\]]*\]/i.test(text)) {
+      findings.push({
+        level: "warn", id: "placeholder",
+        label: "Unfilled data placeholder",
+        why: "Replace every [bracketed placeholder] with real, verified figures (and cite the source where relevant) before posting — generated content never invents data."
+      });
+    }
+
     // Required elements — only enforced when checking a full/final post
     if (!opts.skipRequired) {
       rules.required.forEach(r => {

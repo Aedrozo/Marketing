@@ -110,8 +110,82 @@
     logo: { on: false, pos: "br", size: 8, op: 85 },
     lut: null, lutName: "", lutMix: 100,
     frame: { pad: 0, color: "#F7F4EF" },
+    curves: null, curveChannel: "rgb",
+    hsl: null,
+    retouch: { on: false, size: 40, src: null, offset: null },
+    editLayer: null,
     history: [], compare: false
   };
+  const IDENTITY_CURVE = () => ({ rgb: [[0, 0], [255, 255]], r: [[0, 0], [255, 255]], g: [[0, 0], [255, 255]], b: [[0, 0], [255, 255]] });
+  const HSL_BANDS = [
+    ["red", 0], ["orange", 30], ["yellow", 60], ["green", 120],
+    ["aqua", 185], ["blue", 225], ["purple", 275], ["magenta", 320]
+  ];
+  const EMPTY_HSL = () => { const o = {}; HSL_BANDS.forEach(([k]) => o[k] = { h: 0, s: 0, l: 0 }); return o; };
+  P.curves = IDENTITY_CURVE();
+  P.hsl = EMPTY_HSL();
+
+  function curveIsIdentity(pts) {
+    return pts.length === 2 && pts[0][0] === 0 && pts[0][1] === 0 && pts[1][0] === 255 && pts[1][1] === 255;
+  }
+  /* Monotone cubic (Fritsch–Carlson) through control points → 256-entry map */
+  function buildCurveLUT(pts) {
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    const n = pts.length;
+    const out = new Uint8ClampedArray(256);
+    if (n < 2) { for (let x = 0; x < 256; x++) out[x] = x; return out; }
+    if (n === 2) {
+      for (let x = 0; x < 256; x++) {
+        const t = (Math.min(Math.max(x, xs[0]), xs[1]) - xs[0]) / ((xs[1] - xs[0]) || 1);
+        out[x] = ys[0] + t * (ys[1] - ys[0]);
+      }
+      return out;
+    }
+    const d = [], m = [];
+    for (let i = 0; i < n - 1; i++) d.push((ys[i + 1] - ys[i]) / ((xs[i + 1] - xs[i]) || 1e-6));
+    m[0] = d[0]; m[n - 1] = d[n - 2];
+    for (let i = 1; i < n - 1; i++) m[i] = (d[i - 1] * d[i] <= 0) ? 0 : (d[i - 1] + d[i]) / 2;
+    for (let i = 0; i < n - 1; i++) {
+      if (d[i] === 0) { m[i] = 0; m[i + 1] = 0; continue; }
+      const a = m[i] / d[i], b = m[i + 1] / d[i], s = a * a + b * b;
+      if (s > 9) { const t = 3 / Math.sqrt(s); m[i] = t * a * d[i]; m[i + 1] = t * b * d[i]; }
+    }
+    let seg = 0;
+    for (let x = 0; x < 256; x++) {
+      const X = Math.min(Math.max(x, xs[0]), xs[n - 1]);
+      while (seg < n - 2 && X > xs[seg + 1]) seg++;
+      const h = (xs[seg + 1] - xs[seg]) || 1e-6, t = (X - xs[seg]) / h;
+      out[x] = (2 * t * t * t - 3 * t * t + 1) * ys[seg] + (t * t * t - 2 * t * t + t) * h * m[seg] +
+        (-2 * t * t * t + 3 * t * t) * ys[seg + 1] + (t * t * t - t * t) * h * m[seg + 1];
+    }
+    return out;
+  }
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2;
+    if (max === min) return [0, 0, l];
+    const dd = max - min;
+    const s = l > 0.5 ? dd / (2 - max - min) : dd / (max + min);
+    let h;
+    if (max === r) h = ((g - b) / dd + (g < b ? 6 : 0));
+    else if (max === g) h = (b - r) / dd + 2;
+    else h = (r - g) / dd + 4;
+    return [h * 60, s, l];
+  }
+  function hslToRgb(h, s, l) {
+    h = ((h % 360) + 360) % 360 / 360;
+    if (s === 0) { const v = l * 255; return [v, v, v]; }
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    const hue = (t) => {
+      if (t < 0) t += 1; if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    return [hue(h + 1 / 3) * 255, hue(h) * 255, hue(h - 1 / 3) * 255];
+  }
 
   const phCanvas = $("#ph-canvas");
   const phCtx = phCanvas.getContext("2d", { willReadFrequently: true });
@@ -179,15 +253,49 @@
     ctx.rotate(P.rot * Math.PI / 180);
     ctx.scale(P.flipH ? -1 : 1, P.flipV ? -1 : 1);
     ctx.drawImage(P.img, -P.img.width / 2, -P.img.height / 2);
+    if (P.editLayer) ctx.drawImage(P.editLayer, -P.img.width / 2, -P.img.height / 2);
     ctx.restore();
     return c;
+  }
+
+  /* Maps preview-canvas coordinates back to source-image pixels (for retouch). */
+  function phSourceInverse() {
+    const os = phOrientedSize();
+    let sw = os.w, sh = os.h, sx = 0, sy = 0;
+    if (P.crop) { sx = P.crop.x * os.w; sy = P.crop.y * os.h; sw = P.crop.w * os.w; sh = P.crop.h * os.h; }
+    const scale = Math.min(1, 1100 / Math.max(sw, sh));
+    let m = new DOMMatrix()
+      .translate(-sx * scale, -sy * scale)
+      .scale(scale)
+      .translate(os.w / 2, os.h / 2);
+    const st = P.straighten;
+    if (st) {
+      const rad = st * Math.PI / 180;
+      const cs = Math.abs(Math.cos(rad)), sn = Math.abs(Math.sin(rad));
+      const cover = Math.max((os.w * cs + os.h * sn) / os.w, (os.w * sn + os.h * cs) / os.h);
+      m = m.scale(cover).rotate(st);
+    }
+    m = m.rotate(P.rot)
+      .scale(P.flipH ? -1 : 1, P.flipV ? -1 : 1)
+      .translate(-P.img.width / 2, -P.img.height / 2);
+    return { inv: m.inverse(), scale };
+  }
+  function phEnsureEditLayer() {
+    if (!P.editLayer) {
+      P.editLayer = document.createElement("canvas");
+      P.editLayer.width = P.img.width;
+      P.editLayer.height = P.img.height;
+    }
+    return P.editLayer;
   }
 
   /* --- Pixel adjustments --- */
   function phApplyAdjustments(canvas) {
     const a = P.adj;
+    const hslActive = P.hsl && HSL_BANDS.some(([k]) => P.hsl[k].h || P.hsl[k].s || P.hsl[k].l);
+    const curvesActive = P.curves && !(curveIsIdentity(P.curves.rgb) && curveIsIdentity(P.curves.r) && curveIsIdentity(P.curves.g) && curveIsIdentity(P.curves.b));
     const hasPixelWork = a.exposure || a.contrast || a.saturation || a.temperature || a.tint ||
-      a.highlights || a.shadows || a.fade || a.hue || P.lut;
+      a.highlights || a.shadows || a.fade || a.hue || P.lut || hslActive || curvesActive;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (hasPixelWork) {
       const id = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -205,6 +313,16 @@
       const m10 = 0.213 - 0.213 * hc + 0.143 * hs, m11 = 0.715 + 0.285 * hc + 0.140 * hs, m12 = 0.072 - 0.072 * hc - 0.283 * hs;
       const m20 = 0.213 - 0.213 * hc - 0.787 * hs, m21 = 0.715 - 0.715 * hc + 0.715 * hs, m22 = 0.072 + 0.928 * hc + 0.072 * hs;
       const lut = P.lut, lutMix = P.lutMix / 100;
+      // precompute tone-curve maps: channel curve applied after the master RGB curve
+      let mapR = null, mapG = null, mapB = null;
+      if (curvesActive) {
+        const master = buildCurveLUT(P.curves.rgb);
+        const cr = buildCurveLUT(P.curves.r), cg = buildCurveLUT(P.curves.g), cb = buildCurveLUT(P.curves.b);
+        mapR = new Uint8ClampedArray(256); mapG = new Uint8ClampedArray(256); mapB = new Uint8ClampedArray(256);
+        for (let x = 0; x < 256; x++) { mapR[x] = cr[master[x]]; mapG[x] = cg[master[x]]; mapB[x] = cb[master[x]]; }
+      }
+      // precompute HSL band shifts
+      const bands = hslActive ? HSL_BANDS.map(([k, center]) => ({ center, sh: P.hsl[k] })).filter(b => b.sh.h || b.sh.s || b.sh.l) : [];
       for (let i = 0; i < d.length; i += 4) {
         let r = d[i], g = d[i + 1], b = d[i + 2];
         // exposure
@@ -227,8 +345,38 @@
           const nb = m20 * r + m21 * g + m22 * b;
           r = nr; g = ng; b = nb;
         }
+        // HSL color mixer (targeted hue-band adjustments, saturation-weighted)
+        if (bands.length) {
+          const hsl2 = rgbToHsl(r < 0 ? 0 : r > 255 ? 255 : r, g < 0 ? 0 : g > 255 ? 255 : g, b < 0 ? 0 : b > 255 ? 255 : b);
+          let H = hsl2[0], S = hsl2[1], L = hsl2[2];
+          if (S > 0.04) {
+            let changed = false;
+            for (const band of bands) {
+              let dist = Math.abs(H - band.center);
+              if (dist > 180) dist = 360 - dist;
+              if (dist >= 55) continue;
+              const w = (Math.cos(dist / 55 * Math.PI) + 1) / 2 * Math.min(1, S * 3);
+              H += band.sh.h * 0.3 * w;
+              S = S * (1 + band.sh.s / 100 * w);
+              L = L + band.sh.l / 100 * 0.3 * w * (band.sh.l > 0 ? (1 - L) : L);
+              changed = true;
+            }
+            if (changed) {
+              S = S < 0 ? 0 : S > 1 ? 1 : S;
+              L = L < 0 ? 0 : L > 1 ? 1 : L;
+              const rgb2 = hslToRgb(H, S, L);
+              r = rgb2[0]; g = rgb2[1]; b = rgb2[2];
+            }
+          }
+        }
         // matte fade (lift blacks)
         if (lift) { r = r * (255 - lift) / 255 + lift; g = g * (255 - lift) / 255 + lift; b = b * (255 - lift) / 255 + lift; }
+        // tone curves
+        if (mapR) {
+          r = mapR[r < 0 ? 0 : r > 255 ? 255 : Math.round(r)];
+          g = mapG[g < 0 ? 0 : g > 255 ? 255 : Math.round(g)];
+          b = mapB[b < 0 ? 0 : b > 255 ? 255 : Math.round(b)];
+        }
         // 3D LUT (trilinear)
         if (lut) {
           const N = lut.size, Nm = N - 1, L = lut.data;
@@ -413,7 +561,7 @@
     if (!P.img) return;
     let base = phBuildBase(1100, P.cropping);
     if (!P.compare) phApplyAdjustments(base);
-    if (!P.cropping) base = phApplyFrame(base);
+    if (!P.cropping && !P.retouch.on) base = phApplyFrame(base);
     phCanvas.width = base.width; phCanvas.height = base.height;
     phCtx.drawImage(base, 0, 0);
     if (!P.cropping && !P.compare) phDrawOverlays(phCtx, base.width, base.height, false);
@@ -468,11 +616,43 @@
 
   /* --- Pointer interactions on the photo canvas (crop drag + text drag) --- */
   let phDrag = null;
+  function retouchPaint(px, py) {
+    const { inv, scale } = phSourceInverse();
+    const pt = inv.transformPoint(new DOMPoint(px, py));
+    const off = P.retouch.offset;
+    const layer = phEnsureEditLayer();
+    const ctx = layer.getContext("2d");
+    const rad = (P.retouch.size / 2) / scale;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, rad, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.globalAlpha = 0.9;
+    ctx.drawImage(P.img, -off.x, -off.y);
+    ctx.restore();
+  }
   phCanvas.addEventListener("pointerdown", (e) => {
     if (!P.img) return;
     const rect = phCanvas.getBoundingClientRect();
     const px = (e.clientX - rect.left) * (phCanvas.width / rect.width);
     const py = (e.clientY - rect.top) * (phCanvas.height / rect.height);
+    if (P.retouch.on && !P.cropping) {
+      const { inv } = phSourceInverse();
+      const pt = inv.transformPoint(new DOMPoint(px, py));
+      if (P.retouch.picking || !P.retouch.src) {
+        P.retouch.src = { x: pt.x, y: pt.y };
+        P.retouch.picking = false;
+        toast("Source set — now paint over what you want gone");
+        return;
+      }
+      phSnapshot();
+      P.retouch.offset = { x: P.retouch.src.x - pt.x, y: P.retouch.src.y - pt.y };
+      phDrag = { type: "retouch" };
+      try { phCanvas.setPointerCapture(e.pointerId); } catch (err) {}
+      retouchPaint(px, py);
+      phRequestRender();
+      return;
+    }
     if (P.cropping && P.cropDraft) {
       const c = P.cropDraft;
       const w = phCanvas.width, h = phCanvas.height;
@@ -514,6 +694,12 @@
     const rect = phCanvas.getBoundingClientRect();
     const nx = (e.clientX - rect.left) / rect.width;
     const ny = (e.clientY - rect.top) / rect.height;
+    if (phDrag.type === "retouch") {
+      const rect2 = phCanvas.getBoundingClientRect();
+      retouchPaint((e.clientX - rect2.left) * (phCanvas.width / rect2.width), (e.clientY - rect2.top) * (phCanvas.height / rect2.height));
+      phRequestRender();
+      return;
+    }
     if (phDrag.type === "text") {
       const t = P.texts[phDrag.idx];
       t.x = Math.min(0.98, Math.max(0.02, nx - phDrag.ox));
@@ -688,7 +874,7 @@
     adj: { brightness: 0, contrast: 0, saturation: 0, temperature: 0 },
     texts: [], music: { url: null, name: null, el: null, vol: 35, fade: true },
     vo: { url: null, name: null, el: null, vol: 100, srcNode: null, gain: null },
-    overlays: [],
+    overlays: [], bg: null,
     muteClips: false, logo: false,
     playing: false, t: 0, activeIdx: -1,
     audioCtx: null, audioDest: null, masterGain: null, exporting: false
@@ -720,6 +906,82 @@
     vdDrawFrame();
   };
 
+  /* A stub media element so AI-generated segments behave like clips in the engine */
+  function genStubEl() {
+    return {
+      currentTime: 0, paused: true, playbackRate: 1, readyState: 4,
+      videoWidth: 0, videoHeight: 0, muted: true, volume: 0, ended: false, seeking: false,
+      play() { this.paused = false; return Promise.resolve(); },
+      pause() { this.paused = true; },
+      addEventListener() {}
+    };
+  }
+  function vdAddGenSegment(title, lines, dur) {
+    V.clips.push({
+      type: "gen", file: null, url: null, el: genStubEl(),
+      name: "AI segment · " + title.slice(0, 30), dur,
+      in: 0, out: dur, speed: 1, vol: 0, mute: true, srcNode: null, gain: null,
+      trans: "fade", motion: "none", genTitle: title, genLines: lines
+    });
+    $("#vd-empty").classList.add("hidden");
+    $("#vd-workspace").classList.remove("hidden");
+    vdRenderClips(); V.resize(); vdUpdateTime();
+  }
+  function drawGenFrame(c, t, w, h) {
+    const q = Math.min(1, Math.max(0, t / Math.max(0.01, c.dur)));
+    // slow drifting brand gradient — restrained, editorial
+    const drift = Math.sin(t * 0.5) * w * 0.04;
+    const g = vdCtx.createLinearGradient(drift, 0, w + drift, h);
+    g.addColorStop(0, "#0D2B36");
+    g.addColorStop(1, "#081E27");
+    vdCtx.fillStyle = g;
+    vdCtx.fillRect(0, 0, w, h);
+    const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+    const inQ = ease(t / 0.6);
+    vdCtx.save();
+    vdCtx.globalAlpha = inQ;
+    // gold hairline
+    vdCtx.fillStyle = "#E8C468";
+    vdCtx.fillRect(w * 0.12, h * 0.30 + (1 - inQ) * 14, w * 0.10 * inQ, Math.max(1.5, h * 0.003));
+    // title
+    const ts = h * 0.055;
+    vdCtx.font = `600 ${ts}px Georgia, "Times New Roman", serif`;
+    vdCtx.fillStyle = "#FFFFFF";
+    vdCtx.textAlign = "left";
+    vdCtx.textBaseline = "top";
+    const words = c.genTitle.split(" ");
+    let line = "", ty = h * 0.34 + (1 - inQ) * 18;
+    words.forEach(wd => {
+      const test = line ? line + " " + wd : wd;
+      if (vdCtx.measureText(test).width > w * 0.76) {
+        vdCtx.fillText(line, w * 0.12, ty);
+        ty += ts * 1.25; line = wd;
+      } else line = test;
+    });
+    if (line) vdCtx.fillText(line, w * 0.12, ty);
+    ty += ts * 1.7;
+    // supporting lines, staggered
+    const ls = h * 0.03;
+    vdCtx.font = `400 ${ls}px "Avenir Next","Segoe UI",Arial,sans-serif`;
+    (c.genLines || []).forEach((ln, i) => {
+      const lq = ease((t - 0.5 - i * 0.35) / 0.5);
+      if (lq <= 0) return;
+      vdCtx.globalAlpha = inQ * lq;
+      vdCtx.fillStyle = "#B8D4E0";
+      vdCtx.fillText(ln, w * 0.12, ty + i * ls * 1.7 + (1 - lq) * 10);
+    });
+    vdCtx.restore();
+    drawGemLogo(vdCtx, w * 0.12, h * 0.80, Math.min(w, h) * 0.07, 0.9 * inQ);
+    // required company disclosure on generated scenes
+    vdCtx.save();
+    vdCtx.globalAlpha = 0.85 * inQ;
+    vdCtx.font = `400 ${Math.max(8, h * 0.014)}px "Avenir Next","Segoe UI",Arial,sans-serif`;
+    vdCtx.fillStyle = "#7FA3B2";
+    vdCtx.textAlign = "center";
+    vdCtx.textBaseline = "bottom";
+    vdCtx.fillText("NEO Home Loans is a division of Better Mortgage Corporation NMLS #330511 | Equal Housing Lender", w / 2, h * 0.985);
+    vdCtx.restore();
+  }
   function vdEnsureAudio() {
     if (V.audioCtx) return;
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -732,6 +994,7 @@
   }
   function vdWireClipAudio(c) {
     vdEnsureAudio();
+    if (c.type === "gen") return;
     if (!V.audioCtx || c.srcNode) return;
     try {
       c.srcNode = V.audioCtx.createMediaElementSource(c.el);
@@ -789,6 +1052,38 @@
     V.clips.forEach((c, i) => {
       const div = document.createElement("div");
       div.className = "clip-item";
+      if (c.type === "gen") {
+        div.innerHTML = `
+          <div class="name">${i + 1}. ✦ ${c.name} · ${fmtTime(c.dur)}</div>
+          <div class="row">
+            <div class="field" style="flex:1"><label>Duration (s)</label>
+              <input type="number" data-a="gendur" min="2" max="20" step="0.5" value="${c.dur}"></div>
+            <div class="field" style="flex:1"><label>Transition out</label>
+              <select data-a="trans" ${i === V.clips.length - 1 ? "disabled" : ""}>
+                ${[["cut", "Cut"], ["fade", "Crossfade"], ["black", "Dip to black"], ["slide", "Slide"], ["zoom", "Zoom"]].map(([v, l]) => `<option value="${v}"${c.trans === v ? " selected" : ""}>${l}</option>`).join("")}
+              </select></div>
+          </div>
+          <div class="row">
+            <button class="btn small" data-a="up" ${i === 0 ? "disabled" : ""}>↑</button>
+            <button class="btn small" data-a="down" ${i === V.clips.length - 1 ? "disabled" : ""}>↓</button>
+            <button class="btn small danger" data-a="del">Remove</button>
+          </div>`;
+        div.querySelector('[data-a="gendur"]').addEventListener("input", (e) => {
+          c.dur = Math.max(1, +e.target.value || 4);
+          c.out = c.dur;
+          vdUpdateTime();
+        });
+        div.querySelector('[data-a="trans"]').addEventListener("change", (e) => { c.trans = e.target.value; });
+        div.querySelector('[data-a="up"]').addEventListener("click", () => { [V.clips[i - 1], V.clips[i]] = [V.clips[i], V.clips[i - 1]]; vdRenderClips(); });
+        div.querySelector('[data-a="down"]').addEventListener("click", () => { [V.clips[i + 1], V.clips[i]] = [V.clips[i], V.clips[i + 1]]; vdRenderClips(); });
+        div.querySelector('[data-a="del"]').addEventListener("click", () => {
+          vdPause(); V.clips.splice(i, 1);
+          if (!V.clips.length) { $("#vd-workspace").classList.add("hidden"); $("#vd-empty").classList.remove("hidden"); }
+          vdRenderClips(); vdUpdateTime();
+        });
+        wrap.appendChild(div);
+        return;
+      }
       div.innerHTML = `
         <div class="name">${i + 1}. ${c.name} · ${fmtTime(c.dur)}</div>
         <div class="row">
@@ -812,10 +1107,14 @@
             </select></div>
           <div class="field" style="flex:1"><label>Transition out</label>
             <select data-a="trans" ${i === V.clips.length - 1 ? "disabled" : ""}>
-              <option value="cut"${c.trans === "cut" ? " selected" : ""}>Cut</option>
-              <option value="fade"${c.trans === "fade" ? " selected" : ""}>Crossfade</option>
-              <option value="black"${c.trans === "black" ? " selected" : ""}>Dip to black</option>
+              ${[["cut", "Cut"], ["fade", "Crossfade"], ["black", "Dip to black"], ["slide", "Slide"], ["zoom", "Zoom"]].map(([v, l]) => `<option value="${v}"${c.trans === v ? " selected" : ""}>${l}</option>`).join("")}
             </select></div>
+        </div>
+        <div class="row">
+          <label class="note" style="display:flex;align-items:center;gap:5px"><input type="checkbox" data-a="keyon" ${c.key && c.key.on ? "checked" : ""}>Green screen</label>
+          <input type="color" data-a="keycolor" value="${c.key ? c.key.hex : "#10d610"}" style="width:34px;height:26px;border:1px solid var(--line);border-radius:6px;background:none;padding:1px">
+          <div class="field" style="flex:1"><label>Tolerance ${c.key ? c.key.tol : 90}</label>
+            <input type="range" data-a="keytol" min="30" max="200" value="${c.key ? c.key.tol : 90}"></div>
         </div>
         <div class="row">
           <button class="btn small" data-a="up" ${i === 0 ? "disabled" : ""}>↑</button>
@@ -836,6 +1135,16 @@
       div.querySelector('[data-a="vol"]').addEventListener("input", (e) => { c.vol = +e.target.value; });
       div.querySelector('[data-a="motion"]').addEventListener("change", (e) => { c.motion = e.target.value; vdDrawFrame(); });
       div.querySelector('[data-a="trans"]').addEventListener("change", (e) => { c.trans = e.target.value; });
+      const hexToRgb = (hex) => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+      const ensureKey = () => { if (!c.key) c.key = { on: false, hex: "#10d610", rgb: [16, 214, 16], tol: 90 }; return c.key; };
+      div.querySelector('[data-a="keyon"]').addEventListener("change", (e) => { ensureKey().on = e.target.checked; vdDrawFrame(); });
+      div.querySelector('[data-a="keycolor"]').addEventListener("input", (e) => {
+        const k = ensureKey();
+        k.hex = e.target.value;
+        k.rgb = hexToRgb(e.target.value);
+        vdDrawFrame();
+      });
+      div.querySelector('[data-a="keytol"]').addEventListener("input", (e) => { ensureKey().tol = +e.target.value; vdDrawFrame(); });
       div.querySelector('[data-a="up"]').addEventListener("click", () => { [V.clips[i - 1], V.clips[i]] = [V.clips[i], V.clips[i - 1]]; vdRenderClips(); });
       div.querySelector('[data-a="down"]').addEventListener("click", () => { [V.clips[i + 1], V.clips[i]] = [V.clips[i], V.clips[i + 1]]; vdRenderClips(); });
       div.querySelector('[data-a="del"]').addEventListener("click", () => {
@@ -857,6 +1166,13 @@
   }
   function vdDrawClip(c, w, h, alpha) {
     const vid = c.el;
+    if (c.type === "gen") {
+      vdCtx.save();
+      vdCtx.globalAlpha = alpha;
+      drawGenFrame(c, vid.currentTime, w, h);
+      vdCtx.restore();
+      return;
+    }
     if (vid.readyState < 2) return;
     const vw = vid.videoWidth, vh = vid.videoHeight;
     if (!vw || !vh) return;
@@ -873,7 +1189,27 @@
     vdCtx.save();
     vdCtx.globalAlpha = alpha;
     vdCtx.filter = vdColorFilter();
-    vdCtx.drawImage(vid, (w - dw) / 2 + mx, (h - dh) / 2, dw, dh);
+    if (c.key && c.key.on) {
+      // chroma key: draw to a temp canvas, knock out the key color, composite
+      const t2 = vdDrawClip._tmp || (vdDrawClip._tmp = document.createElement("canvas"));
+      t2.width = Math.round(dw); t2.height = Math.round(dh);
+      const tctx = t2.getContext("2d", { willReadFrequently: true });
+      tctx.drawImage(vid, 0, 0, t2.width, t2.height);
+      const id = tctx.getImageData(0, 0, t2.width, t2.height);
+      const d = id.data;
+      const kr = c.key.rgb[0], kg = c.key.rgb[1], kb = c.key.rgb[2];
+      const tol = c.key.tol * c.key.tol, soft = Math.max(400, tol * 0.6);
+      for (let i = 0; i < d.length; i += 4) {
+        const dr = d[i] - kr, dg = d[i + 1] - kg, db = d[i + 2] - kb;
+        const dist = dr * dr + dg * dg + db * db;
+        if (dist < tol) d[i + 3] = 0;
+        else if (dist < tol + soft) d[i + 3] = Math.round(255 * (dist - tol) / soft);
+      }
+      tctx.putImageData(id, 0, 0);
+      vdCtx.drawImage(t2, (w - dw) / 2 + mx, (h - dh) / 2, dw, dh);
+    } else {
+      vdCtx.drawImage(vid, (w - dw) / 2 + mx, (h - dh) / 2, dw, dh);
+    }
     vdCtx.restore();
   }
   function vdDrawFrame() {
@@ -881,6 +1217,10 @@
     vdCtx.filter = "none";
     vdCtx.fillStyle = "#06161d";
     vdCtx.fillRect(0, 0, w, h);
+    if (V.bg) {
+      const s = Math.max(w / V.bg.width, h / V.bg.height);
+      vdCtx.drawImage(V.bg, (w - V.bg.width * s) / 2, (h - V.bg.height * s) / 2, V.bg.width * s, V.bg.height * s);
+    }
     const loc = V.locate(V.t);
     if (!loc) return;
     const c = V.clips[loc.idx];
@@ -888,11 +1228,27 @@
     // transition progress at the tail of the current clip
     const remain = (c.out - c.el.currentTime) / c.speed;
     const p = (next && c.trans !== "cut" && remain < TRANS_DUR) ? 1 - remain / TRANS_DUR : 0;
-    vdDrawClip(c, w, h, 1);
-    if (p > 0 && c.trans === "fade" && next.el.readyState >= 2) vdDrawClip(next, w, h, p);
-    if (p > 0 && c.trans === "black") {
-      vdCtx.fillStyle = `rgba(4,12,16,${p})`;
-      vdCtx.fillRect(0, 0, w, h);
+    if (p > 0 && c.trans === "zoom" && next.el.readyState >= 2) {
+      vdDrawClip(next, w, h, 1);
+      vdCtx.save();
+      vdCtx.translate(w / 2, h / 2);
+      vdCtx.scale(1 + 0.35 * p, 1 + 0.35 * p);
+      vdCtx.translate(-w / 2, -h / 2);
+      vdDrawClip(c, w, h, 1 - p);
+      vdCtx.restore();
+    } else {
+      vdDrawClip(c, w, h, 1);
+      if (p > 0 && c.trans === "fade" && next.el.readyState >= 2) vdDrawClip(next, w, h, p);
+      if (p > 0 && c.trans === "slide" && next.el.readyState >= 2) {
+        vdCtx.save();
+        vdCtx.translate(w * (1 - p), 0);
+        vdDrawClip(next, w, h, 1);
+        vdCtx.restore();
+      }
+      if (p > 0 && c.trans === "black") {
+        vdCtx.fillStyle = `rgba(4,12,16,${p})`;
+        vdCtx.fillRect(0, 0, w, h);
+      }
     }
     // dip-to-black recovery at the head of a clip whose predecessor dipped
     const prev = V.clips[loc.idx - 1];
@@ -929,15 +1285,27 @@
       vdCtx.drawImage(o.img, x, y, ow, oh);
       vdCtx.restore();
     });
-    // text overlays
+    // text overlays with entrance/exit animation
+    const ANIM_T = 0.35;
+    const easeOut = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
     V.texts.forEach(t => {
       if (V.t < t.start || V.t > t.end) return;
+      const qIn = t.ain && t.ain !== "none" ? easeOut((V.t - t.start) / ANIM_T) : 1;
+      const qOut = t.aout && t.aout !== "none" ? easeOut((t.end - V.t) / ANIM_T) : 1;
       const size = (t.size / 100) * h * 0.08;
       vdCtx.save();
+      vdCtx.globalAlpha = Math.min(qIn, qOut);
       vdCtx.font = `800 ${size}px "Avenir Next","Segoe UI",Arial,sans-serif`;
       vdCtx.textAlign = "center"; vdCtx.textBaseline = "middle";
       const content = t.upper ? t.text.toUpperCase() : t.text;
-      const y = t.pos === "top" ? h * 0.12 : t.pos === "center" ? h * 0.5 : h * 0.82;
+      let y = t.pos === "top" ? h * 0.12 : t.pos === "center" ? h * 0.5 : h * 0.82;
+      if (t.ain === "up") y += (1 - qIn) * size * 1.4;
+      if (t.ain === "pop") {
+        vdCtx.translate(w / 2, y);
+        const sc = 0.6 + 0.4 * qIn;
+        vdCtx.scale(sc, sc);
+        vdCtx.translate(-w / 2, -y);
+      }
       const tw = vdCtx.measureText(content).width;
       if (t.scrim) {
         vdCtx.fillStyle = "rgba(8,30,39,.62)";
@@ -1038,13 +1406,21 @@
     }
     let offsetBefore = 0;
     for (let i = 0; i < loc.idx; i++) offsetBefore += (V.clips[i].out - V.clips[i].in) / V.clips[i].speed;
+    V._lt = performance.now();
     const tick = () => {
       if (!V.playing) return;
+      const nowMs = performance.now();
+      const dt = (nowMs - V._lt) / 1000;
+      V._lt = nowMs;
       const c = V.clips[V.activeIdx];
+      // AI-generated segments advance on the wall clock
+      if (c.type === "gen" && !c.el.paused) c.el.currentTime += dt;
+      const nxt0 = V.clips[V.activeIdx + 1];
+      if (nxt0 && nxt0.type === "gen" && !nxt0.el.paused) nxt0.el.currentTime += dt;
       V.t = offsetBefore + (c.el.currentTime - c.in) / c.speed;
       // pre-roll the next clip during a transition window
       const nxt = V.clips[V.activeIdx + 1];
-      if (nxt && c.trans === "fade" && (c.out - c.el.currentTime) / c.speed < TRANS_DUR && nxt.el.paused) {
+      if (nxt && ["fade", "slide", "zoom"].includes(c.trans) && (c.out - c.el.currentTime) / c.speed < TRANS_DUR && nxt.el.paused) {
         nxt.el.currentTime = nxt.in;
         nxt.el.playbackRate = nxt.speed;
         nxt.el.play().catch(() => {});
@@ -1078,18 +1454,41 @@
     if (V.vo.el) V.vo.el.pause();
   }
 
-  /* --- Voiceover recording --- */
-  let voRec = null;
+  /* --- Voiceover recording with live auto-captions --- */
+  let voRec = null, voSpeech = null;
   async function voToggle(btn) {
-    if (voRec) { voRec.stop(); return; }
+    if (voRec) { voRec.stop(); if (voSpeech) { try { voSpeech.stop(); } catch (e) {} } return; }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return toast("This browser can't record audio");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mr = new MediaRecorder(stream);
       const chunks = [];
+      const phrases = [];
+      const t0 = performance.now();
+      // live speech-to-text → timed caption cards (Chrome; needs internet)
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const wantCC = $("#vd-vo-cc") && $("#vd-vo-cc").checked;
+      if (SR && wantCC) {
+        try {
+          voSpeech = new SR();
+          voSpeech.continuous = true;
+          voSpeech.interimResults = false;
+          voSpeech.onresult = (ev) => {
+            for (let i = ev.resultIndex; i < ev.results.length; i++) {
+              if (ev.results[i].isFinal) {
+                const text = ev.results[i][0].transcript.trim();
+                if (text) phrases.push({ text, t: (performance.now() - t0) / 1000 });
+              }
+            }
+          };
+          voSpeech.onerror = () => {};
+          voSpeech.start();
+        } catch (e) { voSpeech = null; }
+      }
       mr.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
       mr.onstop = () => {
         stream.getTracks().forEach(t => t.stop());
+        if (voSpeech) { try { voSpeech.stop(); } catch (e) {} voSpeech = null; }
         const blob = new Blob(chunks, { type: mr.mimeType || "audio/webm" });
         if (V.vo.url) URL.revokeObjectURL(V.vo.url);
         if (V.vo.srcNode) { try { V.vo.srcNode.disconnect(); } catch (e) {} }
@@ -1099,14 +1498,35 @@
         voRec = null;
         btn.textContent = "Record voiceover";
         vdPause();
-        toast("Voiceover attached to the timeline");
+        // convert recognized phrases into caption cards
+        if (phrases.length) {
+          let prevEnd = 0;
+          phrases.forEach(ph => {
+            const words = ph.text.split(/\s+/);
+            const span = Math.max(0.8, ph.t - prevEnd);
+            const chunksW = [];
+            for (let i = 0; i < words.length; i += 4) chunksW.push(words.slice(i, i + 4).join(" "));
+            const per = span / chunksW.length;
+            chunksW.forEach((txt, i) => {
+              V.texts.push({
+                text: txt, start: +(prevEnd + i * per).toFixed(1), end: +(prevEnd + (i + 1) * per - 0.05).toFixed(1),
+                pos: "lower", size: 90, color: "#FFFFFF", upper: false, scrim: true, ain: "fade", aout: "fade"
+              });
+            });
+            prevEnd = ph.t;
+          });
+          vdRenderTextLayers(); vdDrawFrame();
+          toast(`Voiceover attached + ${phrases.length} caption phrase${phrases.length > 1 ? "s" : ""} auto-timed from your voice`);
+        } else {
+          toast("Voiceover attached to the timeline");
+        }
       };
       voRec = mr;
       mr.start();
       btn.textContent = "Stop recording";
       vdSeek(0);
       vdPlay();
-      toast("Recording — narrate over the playback (headphones avoid echo)");
+      toast(SR && wantCC ? "Recording — captions are being written from your voice live" : "Recording — narrate over the playback (headphones avoid echo)");
     } catch (e) {
       toast("Microphone unavailable — check browser permissions");
     }
@@ -1148,6 +1568,12 @@
         </div>
         <div class="slider-row"><label>Size</label><input type="range" data-k="size" min="40" max="200" value="${t.size}"><output>${t.size}</output></div>
         <div class="row">
+          <div class="field" style="flex:1"><label>Animate in</label>
+            <select data-k="ain">${[["none", "None"], ["fade", "Fade"], ["up", "Slide up"], ["pop", "Pop"]].map(([v, l]) => `<option value="${v}"${(t.ain || "none") === v ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+          <div class="field" style="flex:1"><label>Animate out</label>
+            <select data-k="aout">${[["none", "None"], ["fade", "Fade"]].map(([v, l]) => `<option value="${v}"${(t.aout || "none") === v ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+        </div>
+        <div class="row">
           <div class="swatches">${BRAND_COLORS.map(c => `<button class="swatch${t.color === c ? " active" : ""}" data-c="${c}" style="background:${c}"></button>`).join("")}</div>
           <label class="note" style="display:flex;align-items:center;gap:4px"><input type="checkbox" data-k="scrim" ${t.scrim ? "checked" : ""}>Scrim</label>
           <button class="btn small danger" data-del="1">✕</button>
@@ -1156,6 +1582,8 @@
       div.querySelector('[data-k="start"]').addEventListener("input", e => { t.start = +e.target.value || 0; vdDrawFrame(); });
       div.querySelector('[data-k="end"]').addEventListener("input", e => { t.end = +e.target.value || 0; vdDrawFrame(); });
       div.querySelector('[data-k="pos"]').addEventListener("change", e => { t.pos = e.target.value; vdDrawFrame(); });
+      div.querySelector('[data-k="ain"]').addEventListener("change", e => { t.ain = e.target.value; vdDrawFrame(); });
+      div.querySelector('[data-k="aout"]').addEventListener("change", e => { t.aout = e.target.value; vdDrawFrame(); });
       div.querySelector('[data-k="size"]').addEventListener("input", e => { t.size = +e.target.value; e.target.nextElementSibling.textContent = t.size; vdDrawFrame(); });
       div.querySelector('[data-k="scrim"]').addEventListener("change", e => { t.scrim = e.target.checked; vdDrawFrame(); });
       div.querySelectorAll(".swatch").forEach(sw => sw.addEventListener("click", () => { t.color = sw.dataset.c; vdRenderTextLayers(); vdDrawFrame(); }));
@@ -1348,6 +1776,234 @@
         phSyncControls(); phRequestRender();
       });
       pr.appendChild(b);
+    });
+
+    /* ---- photo: custom presets ---- */
+    function loadCustomPresets() {
+      try { return JSON.parse(localStorage.getItem("gem-photo-presets") || "[]"); } catch (e) { return []; }
+    }
+    function renderCustomPresets() {
+      const wrap = $("#ph-custom-presets");
+      wrap.innerHTML = "";
+      loadCustomPresets().forEach((p2, i) => {
+        const b = document.createElement("button");
+        b.className = "chip";
+        b.textContent = "★ " + p2.name;
+        b.addEventListener("click", () => {
+          phSnapshot();
+          P.adj = Object.assign({}, DEF_ADJ, p2.adj);
+          P.hsl = Object.assign(EMPTY_HSL(), p2.hsl || {});
+          P.curves = p2.curves || IDENTITY_CURVE();
+          phSyncControls(); renderCurves(); phRequestRender();
+        });
+        b.addEventListener("dblclick", () => {
+          const list = loadCustomPresets();
+          list.splice(i, 1);
+          localStorage.setItem("gem-photo-presets", JSON.stringify(list));
+          renderCustomPresets();
+          toast("Look deleted");
+        });
+        wrap.appendChild(b);
+      });
+    }
+    $("#preset-save").addEventListener("click", () => {
+      const name = $("#preset-name").value.trim();
+      if (!name) return toast("Give your look a name first");
+      const list = loadCustomPresets();
+      list.push({ name, adj: P.adj, hsl: P.hsl, curves: P.curves });
+      localStorage.setItem("gem-photo-presets", JSON.stringify(list.slice(0, 24)));
+      $("#preset-name").value = "";
+      renderCustomPresets();
+      toast(`"${name}" saved — it's in your presets now`);
+    });
+    renderCustomPresets();
+
+    /* ---- photo: auto-enhance (per-channel levels + neutralize) ---- */
+    $("#ph-auto").addEventListener("click", () => {
+      if (!P.img) return;
+      phSnapshot();
+      const sample = phBuildBase(400, false);
+      const sctx = sample.getContext("2d");
+      const data = sctx.getImageData(0, 0, sample.width, sample.height).data;
+      const histR = new Uint32Array(256), histG = new Uint32Array(256), histB = new Uint32Array(256);
+      for (let i = 0; i < data.length; i += 4) { histR[data[i]]++; histG[data[i + 1]]++; histB[data[i + 2]]++; }
+      const total = data.length / 4;
+      const bounds = (hist) => {
+        let lo = 0, hi = 255, acc = 0;
+        const clip = total * 0.008;
+        for (let x = 0; x < 256; x++) { acc += hist[x]; if (acc > clip) { lo = x; break; } }
+        acc = 0;
+        for (let x = 255; x >= 0; x--) { acc += hist[x]; if (acc > clip) { hi = x; break; } }
+        if (hi - lo < 24) { lo = Math.max(0, lo - 12); hi = Math.min(255, hi + 12); }
+        return [lo, hi];
+      };
+      const [rLo, rHi] = bounds(histR), [gLo, gHi] = bounds(histG), [bLo, bHi] = bounds(histB);
+      P.curves = IDENTITY_CURVE();
+      P.curves.r = [[rLo, 0], [rHi, 255]];
+      P.curves.g = [[gLo, 0], [gHi, 255]];
+      P.curves.b = [[bLo, 0], [bHi, 255]];
+      renderCurves(); phRequestRender();
+      toast("Auto-enhanced — see the Curves panel for what changed");
+    });
+
+    /* ---- photo: curves UI ---- */
+    const cvs = $("#curve-canvas");
+    const cctx = cvs.getContext("2d");
+    const CH_COLORS = { rgb: "#EAF3F7", r: "#ff8a8a", g: "#8aff9e", b: "#8ac6ff" };
+    function renderCurves() {
+      const w = cvs.width, h = cvs.height;
+      cctx.clearRect(0, 0, w, h);
+      // histogram backdrop from the current preview
+      if (P.img && phCanvas.width > 2) {
+        const t = document.createElement("canvas");
+        t.width = 120; t.height = 80;
+        t.getContext("2d").drawImage(phCanvas, 0, 0, 120, 80);
+        const d = t.getContext("2d").getImageData(0, 0, 120, 80).data;
+        const hist = new Uint32Array(64);
+        for (let i = 0; i < d.length; i += 4) {
+          hist[Math.min(63, ((d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) / 4) | 0)]++;
+        }
+        const peak = Math.max(...hist, 1);
+        cctx.fillStyle = "rgba(127,163,178,.25)";
+        for (let x = 0; x < 64; x++) {
+          const bh = (hist[x] / peak) * (h - 8);
+          cctx.fillRect(x * (w / 64), h - bh, w / 64 - 1, bh);
+        }
+      }
+      // grid
+      cctx.strokeStyle = "rgba(184,212,224,.12)";
+      cctx.lineWidth = 1;
+      for (let i = 1; i < 4; i++) {
+        cctx.beginPath(); cctx.moveTo(w * i / 4, 0); cctx.lineTo(w * i / 4, h); cctx.stroke();
+        cctx.beginPath(); cctx.moveTo(0, h * i / 4); cctx.lineTo(w, h * i / 4); cctx.stroke();
+      }
+      // curve
+      const pts = P.curves[P.curveChannel];
+      const lutC = buildCurveLUT(pts);
+      cctx.strokeStyle = CH_COLORS[P.curveChannel];
+      cctx.lineWidth = 2;
+      cctx.beginPath();
+      for (let x = 0; x < 256; x++) {
+        const cx = x / 255 * w, cy = h - lutC[x] / 255 * h;
+        if (x === 0) cctx.moveTo(cx, cy); else cctx.lineTo(cx, cy);
+      }
+      cctx.stroke();
+      // points
+      cctx.fillStyle = CH_COLORS[P.curveChannel];
+      pts.forEach(p2 => {
+        cctx.beginPath();
+        cctx.arc(p2[0] / 255 * w, h - p2[1] / 255 * h, 5, 0, Math.PI * 2);
+        cctx.fill();
+      });
+    }
+    let curveDrag = -1;
+    const curvePos = (e) => {
+      const r = cvs.getBoundingClientRect();
+      return [
+        Math.min(255, Math.max(0, (e.clientX - r.left) / r.width * 255)),
+        Math.min(255, Math.max(0, 255 - (e.clientY - r.top) / r.height * 255))
+      ];
+    };
+    cvs.addEventListener("pointerdown", (e) => {
+      const [x, y] = curvePos(e);
+      const pts = P.curves[P.curveChannel];
+      let best = -1, bd = 24;
+      pts.forEach((p2, i) => {
+        const d2 = Math.hypot(p2[0] - x, p2[1] - y);
+        if (d2 < bd) { bd = d2; best = i; }
+      });
+      if (best < 0) {
+        pts.push([Math.round(x), Math.round(y)]);
+        pts.sort((a2, b2) => a2[0] - b2[0]);
+        best = pts.findIndex(p2 => p2[0] === Math.round(x));
+      }
+      curveDrag = best;
+      try { cvs.setPointerCapture(e.pointerId); } catch (err) {}
+      renderCurves(); phRequestRender();
+    });
+    cvs.addEventListener("pointermove", (e) => {
+      if (curveDrag < 0) return;
+      const pts = P.curves[P.curveChannel];
+      const [x, y] = curvePos(e);
+      const lo = curveDrag > 0 ? pts[curveDrag - 1][0] + 2 : 0;
+      const hi = curveDrag < pts.length - 1 ? pts[curveDrag + 1][0] - 2 : 255;
+      pts[curveDrag] = [Math.round(Math.min(hi, Math.max(lo, x))), Math.round(y)];
+      renderCurves(); phRequestRender();
+    });
+    cvs.addEventListener("pointerup", () => { curveDrag = -1; });
+    cvs.addEventListener("dblclick", (e) => {
+      const [x, y] = curvePos(e);
+      const pts = P.curves[P.curveChannel];
+      const idx = pts.findIndex((p2, i) => i > 0 && i < pts.length - 1 && Math.hypot(p2[0] - x, p2[1] - y) < 20);
+      if (idx > 0) { pts.splice(idx, 1); renderCurves(); phRequestRender(); }
+    });
+    $$("#curve-channels .chip").forEach(b => b.addEventListener("click", () => {
+      $$("#curve-channels .chip").forEach(x => x.classList.toggle("active", x === b));
+      P.curveChannel = b.dataset.ch;
+      renderCurves();
+    }));
+    $("#curve-reset").addEventListener("click", () => {
+      P.curves[P.curveChannel] = [[0, 0], [255, 255]];
+      renderCurves(); phRequestRender();
+    });
+    $("#curve-reset-all").addEventListener("click", () => {
+      P.curves = IDENTITY_CURVE();
+      renderCurves(); phRequestRender();
+    });
+    document.querySelector('details.tool summary + .tool-body #curve-canvas') && null;
+    // re-render curves backdrop whenever its panel opens
+    cvs.closest("details").addEventListener("toggle", (e) => { if (e.target.open) renderCurves(); });
+
+    /* ---- photo: HSL mixer ---- */
+    let hslBand = "red";
+    const hwrap = $("#hsl-bands");
+    HSL_BANDS.forEach(([k, center]) => {
+      const b = document.createElement("button");
+      b.className = "chip" + (k === "red" ? " active" : "");
+      b.textContent = k;
+      b.style.borderColor = `hsl(${center},70%,60%)`;
+      b.addEventListener("click", () => {
+        $$(".chip", hwrap).forEach(x => x.classList.toggle("active", x === b));
+        hslBand = k;
+        ["h", "s", "l"].forEach(ax => {
+          $("#hsl-" + ax).value = P.hsl[k][ax];
+          $("#hsl-" + ax + "-val").textContent = P.hsl[k][ax];
+        });
+      });
+      hwrap.appendChild(b);
+    });
+    ["h", "s", "l"].forEach(ax => $("#hsl-" + ax).addEventListener("input", (e) => {
+      P.hsl[hslBand][ax] = +e.target.value;
+      $("#hsl-" + ax + "-val").textContent = e.target.value;
+      phRequestRender();
+    }));
+    $("#hsl-reset").addEventListener("click", () => {
+      P.hsl = EMPTY_HSL();
+      ["h", "s", "l"].forEach(ax => { $("#hsl-" + ax).value = 0; $("#hsl-" + ax + "-val").textContent = "0"; });
+      phRequestRender();
+    });
+
+    /* ---- photo: retouch ---- */
+    $("#rt-toggle").addEventListener("click", (e) => {
+      P.retouch.on = !P.retouch.on;
+      e.target.textContent = P.retouch.on ? "Done retouching" : "Start retouching";
+      phCanvas.style.cursor = P.retouch.on ? "crosshair" : "";
+      if (P.retouch.on && !P.retouch.src) toast("Press “Pick source” then click a clean area");
+      phRequestRender();
+    });
+    $("#rt-source").addEventListener("click", () => {
+      if (!P.retouch.on) { P.retouch.on = true; $("#rt-toggle").textContent = "Done retouching"; phCanvas.style.cursor = "crosshair"; phRequestRender(); }
+      P.retouch.picking = true;
+      toast("Click the clean area to clone FROM");
+    });
+    $("#rt-clear").addEventListener("click", () => {
+      P.editLayer = null; P.retouch.src = null;
+      phRequestRender();
+      toast("Retouches cleared");
+    });
+    $("#rt-size").addEventListener("input", (e) => {
+      P.retouch.size = +e.target.value;
+      $("#rt-size-val").textContent = e.target.value;
     });
 
     /* ---- photo: crop & rotate ---- */
@@ -1689,6 +2345,103 @@
     $("#vd-music-vol").addEventListener("input", e => { V.music.vol = +e.target.value; $("#vd-music-vol-val").textContent = e.target.value + "%"; });
     $("#vd-music-fade").addEventListener("change", e => { V.music.fade = e.target.checked; });
     $("#vd-mute-clips").addEventListener("change", e => { V.muteClips = e.target.checked; });
+
+    /* ---- video: backdrop ---- */
+    const bgFile = document.createElement("input");
+    bgFile.type = "file"; bgFile.accept = "image/*";
+    bgFile.id = "vd-bg-file"; bgFile.className = "hidden";
+    document.body.appendChild(bgFile);
+    bgFile.addEventListener("change", e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const img = new Image();
+      img.onload = () => {
+        V.bg = img;
+        $("#vd-bg-clear").classList.remove("hidden");
+        vdDrawFrame();
+        toast("Backdrop set — it shows behind letterboxed or green-screened clips");
+      };
+      img.src = URL.createObjectURL(f);
+      bgFile.value = "";
+    });
+    $("#vd-bg-add").addEventListener("click", () => bgFile.click());
+    $("#vd-bg-clear").addEventListener("click", () => {
+      V.bg = null;
+      $("#vd-bg-clear").classList.add("hidden");
+      vdDrawFrame();
+    });
+
+    /* ---- video: AI tools ---- */
+    const vdAiOut = (text) => {
+      const out = $("#vd-ai-out");
+      out.textContent = text;
+      out.classList.add("show");
+    };
+    async function vdAiRun(btn, fn) {
+      const orig = btn.textContent;
+      btn.disabled = true; btn.textContent = "Thinking…";
+      try { await fn(); }
+      catch (e) { vdAiOut("⚠️ " + e.message); }
+      finally { btn.disabled = false; btn.textContent = orig; }
+    }
+    $("#vd-dir-btn").addEventListener("click", (e) => vdAiRun(e.target, async () => {
+      const desc = $("#vd-dir-desc").value.trim();
+      if (!desc) throw new Error("Describe the video first.");
+      const total = Math.max(15, Math.round(V.totalDur()) || 30);
+      const raw = await GEM.aiGenerate(
+        `Direct a short-form real estate/mortgage video. Concept: "${desc}". Total duration: ${total} seconds.\n\nReply with ONLY a JSON object, no markdown: {"vo": "the full voiceover script, natural spoken English, timed to fit ${total} seconds at a relaxed pace", "captions": [{"text": "3-5 word caption card", "start": seconds, "end": seconds}, ...]} — captions must cover the full duration in sequence, punchy and scroll-stopping, never overlapping.\n\nCRITICAL: never invent statistics or figures — if the concept needs a number the user didn't provide, use a [PLACEHOLDER] and the user will replace it with verified data.`);
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error("The AI didn't return a usable plan — try again.");
+      const plan = JSON.parse(m[0]);
+      if (Array.isArray(plan.captions)) {
+        plan.captions.forEach(cp => {
+          if (cp && cp.text) V.texts.push({
+            text: String(cp.text), start: +cp.start || 0, end: +cp.end || (+cp.start || 0) + 2,
+            pos: "lower", size: 90, color: "#FFFFFF", upper: false, scrim: true, ain: "fade", aout: "fade"
+          });
+        });
+        vdRenderTextLayers(); vdDrawFrame();
+      }
+      vdAiOut("🎬 VOICEOVER SCRIPT — hit “Record voiceover” and read this while it plays:\n\n" + (plan.vo || "") +
+        `\n\n${(plan.captions || []).length} caption cards placed on the timeline.`);
+    }));
+    $("#vd-gen-btn").addEventListener("click", (e) => vdAiRun(e.target, async () => {
+      const desc = $("#vd-gen-desc").value.trim();
+      if (!desc) throw new Error("Describe the segment first.");
+      const dur = +$("#vd-gen-dur").value;
+      let title = desc, lines = [];
+      if (GEM.aiAvailable()) {
+        const raw = await GEM.aiGenerate(
+          `Create the content for a ${dur}-second branded motion-graphic scene inside a real estate video. Topic: "${desc}".\n\nReply with ONLY JSON, no markdown: {"title": "a punchy 4-8 word headline", "lines": ["up to 3 short supporting lines, 8 words max each — compliant, no rate quotes or guarantees"]}\n\nCRITICAL: do NOT invent any statistics, percentages, or dollar figures. If the topic needs a number the user didn't supply, write it as a [PLACEHOLDER] like "[X]% of buyers" for the user to fill with verified data.`);
+        const m = raw.match(/\{[\s\S]*\}/);
+        if (m) {
+          const seg = JSON.parse(m[0]);
+          if (seg.title) title = String(seg.title);
+          if (Array.isArray(seg.lines)) lines = seg.lines.map(String).slice(0, 3);
+        }
+      }
+      vdAddGenSegment(title, lines, dur);
+      vdSeek(V.totalDur() - dur + 0.1);
+      const hasPlaceholder = /\[[A-Z][^\]]*\]/.test(title + " " + lines.join(" "));
+      if (hasPlaceholder) {
+        vdAiOut("⚠️ This segment contains [PLACEHOLDERS] — the AI never invents data. Delete it and recreate it with your real, verified numbers typed into the description (e.g. \"median price $985K, up 4% YoY per Redfin May data\") so the scene shows accurate figures.");
+        toast("Segment added — replace the [placeholders] with verified data before exporting");
+      } else {
+        toast("AI segment added to the end of the timeline — reorder it like any clip");
+      }
+    }));
+    $("#vd-ai-frame").addEventListener("click", (e) => vdAiRun(e.target, async () => {
+      const c = vdCaptureFrameCanvas();
+      if (!c) throw new Error("Load a clip and pick a frame first.");
+      const small = document.createElement("canvas");
+      const sc = Math.min(1, 512 / Math.max(c.width, c.height));
+      small.width = Math.round(c.width * sc); small.height = Math.round(c.height * sc);
+      small.getContext("2d").drawImage(c, 0, 0, small.width, small.height);
+      const text = await GEM.aiVision(
+        "This is a frame from a reel by GEM Home Team. Write: 1) a scroll-stopping on-screen hook line for this exact moment (5-8 words), 2) the Instagram caption for the reel. Reflect what is actually visible.",
+        small.toDataURL("image/jpeg", 0.8));
+      vdAiOut(text + "\n\n" + GEM.buildDisclaimer(GEM.getSettings()));
+    }));
 
     /* ---- video: watermark + export + frames ---- */
     $("#vd-logo-on").addEventListener("change", e => { V.logo = e.target.checked; vdDrawFrame(); });

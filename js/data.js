@@ -1032,7 +1032,7 @@ GEM.complianceRules = {
   disclaimerTemplate: (s) =>
 `—
 {NAME} · NMLS #{NMLS} · GEM Home Team
-NEO Home Loans is a division of Better Mortgage Corporation, NMLS #{CO_NMLS} · Equal Housing Lender · nmlsconsumeraccess.org
+NEO Home Loans is a division of Better Mortgage Corporation NMLS #{CO_NMLS} | Equal Housing Lender | nmlsconsumeraccess.org
 {STATES}
 This is not a commitment to lend. All loans subject to credit approval, underwriting, and program guidelines. Terms and availability subject to change. This content is for educational purposes only and is not financial advice — every situation is different.`
 };
