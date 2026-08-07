@@ -535,6 +535,25 @@
     <strong>How music licensing actually works:</strong> no editor — this one, CapCut, or Premiere — can legally bake Spotify songs into your exported videos; streaming catalogs are DRM-protected. The professional playbook: <strong>1)</strong> export your video clean, then add <em>trending audio inside the Instagram app</em> (your reel joins that audio's discovery page — more reach), or <strong>2)</strong> bake in a licensed / royalty-free track below for YouTube, your website, and ads.
   </div>
 
+  <h2 class="sec">Search streaming — hear it while you edit</h2>
+  <div class="card" style="max-width:640px">
+    <h3>Every song on Spotify &amp; Apple Music, previewed in-app</h3>
+    <p>Search any track, hear a 30-second preview while you cut your video, and open it in your streaming app with one tap. When you post, add the track inside Instagram so it's licensed and your reel joins that audio's discovery page.</p>
+    <div class="row">
+      <input type="text" id="mus-q" placeholder="Search any song or artist…" style="flex:1;min-width:180px;background:var(--navy-2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 12px;font-size:.86rem">
+      <button class="btn primary" id="mus-search">Search</button>
+    </div>
+    <div id="mus-results" style="display:flex;flex-direction:column;gap:6px"></div>
+    <p class="note hidden" id="mus-note"></p>
+  </div>
+
+  <h2 class="sec">GEM Soundtracks — original music you own</h2>
+  <div class="card" style="max-width:640px">
+    <h3>Generated in the app, licensed to no one but you</h3>
+    <p>These beds are composed on the spot by the app — no streaming rights, no royalties, no takedowns, ever. Pick a mood and length, preview it, and drop it straight into the video editor to bake into your export.</p>
+    <div id="mus-gen-list" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
   <h2 class="sec">Use Spotify for inspiration</h2>
   <div class="card" style="max-width:640px">
     <h3>Find the sound, save the idea</h3>

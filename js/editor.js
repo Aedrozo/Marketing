@@ -1687,6 +1687,160 @@
   /* ============================================================
      MUSIC PANEL
      ============================================================ */
+
+  /* --- Streaming search (iTunes Search API via JSONP — no keys, CORS-free) --- */
+  function itunesSearch(q) {
+    return new Promise((resolve, reject) => {
+      const cb = "gemItunes" + Math.floor(performance.now());
+      const s = document.createElement("script");
+      const to = setTimeout(() => { cleanup(); reject(new Error("Couldn't reach the music service — check your connection")); }, 8000);
+      function cleanup() { try { delete window[cb]; } catch (e) {} s.remove(); clearTimeout(to); }
+      window[cb] = (data) => { cleanup(); resolve((data && data.results) || []); };
+      s.onerror = () => { cleanup(); reject(new Error("Couldn't reach the music service — check your connection")); };
+      s.src = "https://itunes.apple.com/search?media=music&limit=8&callback=" + cb + "&term=" + encodeURIComponent(q);
+      document.body.appendChild(s);
+    });
+  }
+  let previewAudio = null;
+  function togglePreview(url, btn) {
+    if (previewAudio && previewAudio._url === url && !previewAudio.paused) {
+      previewAudio.pause();
+      btn.textContent = "Play";
+      return;
+    }
+    if (previewAudio) { previewAudio.pause(); $$(".sp-play").forEach(b => b.textContent = "Play"); }
+    previewAudio = new Audio(url);
+    previewAudio._url = url;
+    previewAudio.play().then(() => { btn.textContent = "Stop"; }).catch(() => toast("Couldn't play the preview"));
+    previewAudio.onended = () => { btn.textContent = "Play"; };
+  }
+
+  /* --- Original in-app soundtrack generator (fully licensed: you made it) --- */
+  function bufferToWav(buf) {
+    const ch = buf.numberOfChannels, len = buf.length, rate = buf.sampleRate;
+    const bytes = 44 + len * ch * 2;
+    const ab = new ArrayBuffer(bytes);
+    const v = new DataView(ab);
+    const wstr = (o, s2) => { for (let i = 0; i < s2.length; i++) v.setUint8(o + i, s2.charCodeAt(i)); };
+    wstr(0, "RIFF"); v.setUint32(4, bytes - 8, true); wstr(8, "WAVE");
+    wstr(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, ch, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * ch * 2, true); v.setUint16(32, ch * 2, true); v.setUint16(34, 16, true);
+    wstr(36, "data"); v.setUint32(40, len * ch * 2, true);
+    let off = 44;
+    for (let i = 0; i < len; i++) {
+      for (let c = 0; c < ch; c++) {
+        const s2 = Math.max(-1, Math.min(1, buf.getChannelData(c)[i]));
+        v.setInt16(off, s2 < 0 ? s2 * 0x8000 : s2 * 0x7FFF, true);
+        off += 2;
+      }
+    }
+    return new Blob([ab], { type: "audio/wav" });
+  }
+  const midi = (m) => 440 * Math.pow(2, (m - 69) / 12);
+  const SOUNDTRACKS = [
+    { id: "coastal", name: "Coastal Morning", mood: "Warm ambient pads — listing tours, calm explainers" },
+    { id: "golden", name: "Golden Hour", mood: "Gentle plucked arpeggios — closings, testimonials" },
+    { id: "momentum", name: "Momentum", mood: "Soft beat + bass — market updates, quick tips" },
+    { id: "editorial", name: "Editorial", mood: "Sparse piano space — voiceover-first reels" }
+  ];
+  async function genSoundtrack(style, seconds) {
+    const rate = 44100;
+    const ctx = new OfflineAudioContext(2, rate * seconds, rate);
+    const master = ctx.createGain();
+    master.connect(ctx.destination);
+    master.gain.setValueAtTime(0.0001, 0);
+    master.gain.linearRampToValueAtTime(0.8, 0.8);
+    master.gain.setValueAtTime(0.8, Math.max(0.8, seconds - 1.6));
+    master.gain.linearRampToValueAtTime(0.0001, seconds);
+    function tone(m, t, dur, o) {
+      o = o || {};
+      const osc = ctx.createOscillator();
+      osc.type = o.type || "sine";
+      osc.frequency.value = midi(m) * (o.detune ? 1 + o.detune : 1);
+      const g = ctx.createGain();
+      const peak = o.gain || 0.1;
+      const atk = o.attack || 0.01, rel = o.release || 0.1;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(peak, t + atk);
+      g.gain.setValueAtTime(peak, Math.max(t + atk, t + dur - rel));
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      let node = g;
+      if (o.lp) {
+        const f = ctx.createBiquadFilter();
+        f.type = "lowpass"; f.frequency.value = o.lp;
+        g.connect(f); node = f;
+      }
+      osc.connect(g); node.connect(master);
+      osc.start(t); osc.stop(t + dur + 0.05);
+    }
+    function noiseHit(t, dur, hp, peak) {
+      const n = ctx.createBufferSource();
+      const nb = ctx.createBuffer(1, rate * dur, rate);
+      const d = nb.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      n.buffer = nb;
+      const f = ctx.createBiquadFilter(); f.type = "highpass"; f.frequency.value = hp;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(peak, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      n.connect(f); f.connect(g); g.connect(master);
+      n.start(t);
+    }
+    function kick(t) {
+      const osc = ctx.createOscillator();
+      osc.frequency.setValueAtTime(150, t);
+      osc.frequency.exponentialRampToValueAtTime(48, t + 0.12);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.35, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+      osc.connect(g); g.connect(master);
+      osc.start(t); osc.stop(t + 0.25);
+    }
+    // shared progression: Dmaj7 · A/C# · Bm7 · Gmaj7
+    const chords = [[50, 57, 61, 64], [49, 57, 61, 64], [47, 57, 62, 66], [43, 55, 59, 66]];
+    if (style === "coastal") {
+      const cd = 4;
+      for (let t = 0; t < seconds; t += cd) {
+        const c = chords[Math.floor(t / cd) % 4];
+        c.forEach(m => {
+          tone(m + 12, t, cd + 0.6, { type: "sawtooth", gain: 0.028, attack: 1.4, release: 1.8, lp: 850 });
+          tone(m + 12, t, cd + 0.6, { type: "sawtooth", gain: 0.028, attack: 1.4, release: 1.8, lp: 850, detune: 0.004 });
+        });
+        tone(c[0], t, cd + 0.4, { type: "sine", gain: 0.10, attack: 0.8, release: 1.2 });
+      }
+    } else if (style === "golden") {
+      const step = 0.27, perChord = 16;
+      for (let i = 0; i * step < seconds; i++) {
+        const c = chords[Math.floor(i / perChord) % 4];
+        const m = c[i % 4] + (Math.floor(i / 4) % 2 ? 12 : 24);
+        tone(m, i * step, 0.55, { type: "triangle", gain: 0.09, attack: 0.005, release: 0.35, lp: 2400 });
+        if (i % perChord === 0) tone(c[0] - 12, i * step, step * perChord, { type: "sine", gain: 0.11, attack: 0.4, release: 1 });
+      }
+    } else if (style === "momentum") {
+      const beat = 0.5;
+      for (let t = 0; t < seconds - 0.3; t += beat) {
+        const bar = Math.floor(t / (beat * 4));
+        kick(t);
+        noiseHit(t + beat / 2, 0.05, 6000, 0.05);
+        const c = chords[bar % 4];
+        tone(c[0] - 12, t, 0.24, { type: "triangle", gain: 0.13, attack: 0.005, release: 0.08, lp: 500 });
+        tone(c[0] - 12, t + beat / 2, 0.2, { type: "triangle", gain: 0.09, attack: 0.005, release: 0.08, lp: 500 });
+        if (bar % 2 === 1 && t % (beat * 4) < beat) c.forEach(m => tone(m + 12, t, beat * 3.5, { type: "sawtooth", gain: 0.014, attack: 0.6, release: 0.9, lp: 900 }));
+      }
+    } else { // editorial
+      const notes = [62, 64, 66, 69, 71, 74, 78];
+      let t = 0.4, i = 0;
+      while (t < seconds - 1.5) {
+        const m = notes[(i * 3 + Math.floor(i / 2)) % notes.length] + (i % 3 === 2 ? -12 : 0);
+        tone(m, t, 2.4, { type: "sine", gain: 0.12, attack: 0.01, release: 1.8 });
+        tone(m, t, 2.4, { type: "triangle", gain: 0.03, attack: 0.01, release: 1.6, lp: 1800 });
+        if (i % 4 === 0) tone(50 - 12 + (i % 8), t, 3.5, { type: "sine", gain: 0.07, attack: 0.9, release: 1.5 });
+        t += 1.15; i++;
+      }
+    }
+    const rendered = await ctx.startRendering();
+    return bufferToWav(rendered);
+  }
   function loadMusicFile(file) {
     if (!file || !file.type.startsWith("audio/")) return toast("That's not an audio file");
     if (V.music.url) URL.revokeObjectURL(V.music.url);
@@ -2471,7 +2625,95 @@
       toast("Frame opened in the photo editor");
     });
 
-    /* ---- music panel ---- */
+    /* ---- music panel: streaming search + previews ---- */
+    async function runMusicSearch() {
+      const q = $("#mus-q").value.trim();
+      const note = $("#mus-note"), wrap = $("#mus-results");
+      if (!q) return;
+      note.classList.add("hidden");
+      wrap.innerHTML = '<p class="note">Searching…</p>';
+      try {
+        const results = await itunesSearch(q);
+        wrap.innerHTML = results.length ? "" : '<p class="note">No matches — try a different spelling.</p>';
+        results.forEach(r => {
+          const row = document.createElement("div");
+          row.className = "row";
+          row.style.justifyContent = "space-between";
+          const title = `${r.trackName} — ${r.artistName}`;
+          row.innerHTML = `<span class="note" style="color:var(--ink);flex:1;min-width:140px">${title}</span>
+            <span class="row">
+              ${r.previewUrl ? '<button class="btn small sp-play">Play</button>' : ""}
+              <a class="btn small" style="text-decoration:none" href="https://open.spotify.com/search/${encodeURIComponent(title)}" target="_blank" rel="noopener">Spotify</a>
+              ${r.trackViewUrl ? `<a class="btn small" style="text-decoration:none" href="${r.trackViewUrl}" target="_blank" rel="noopener">Apple</a>` : ""}
+              <button class="btn small sp-save">Save</button>
+            </span>`;
+          const play = row.querySelector(".sp-play");
+          if (play) play.addEventListener("click", () => togglePreview(r.previewUrl, play));
+          row.querySelector(".sp-save").addEventListener("click", () => {
+            let list = [];
+            try { list = JSON.parse(localStorage.getItem("gem-music-ideas") || "[]"); } catch (e) {}
+            list.unshift(title);
+            localStorage.setItem("gem-music-ideas", JSON.stringify([...new Set(list)].slice(0, 30)));
+            renderSpList();
+            toast("Saved to your shortlist");
+          });
+          wrap.appendChild(row);
+        });
+      } catch (e) {
+        wrap.innerHTML = "";
+        note.textContent = "⚠️ " + e.message;
+        note.classList.remove("hidden");
+      }
+    }
+    $("#mus-search").addEventListener("click", runMusicSearch);
+    $("#mus-q").addEventListener("keydown", e => { if (e.key === "Enter") runMusicSearch(); });
+
+    /* ---- music panel: GEM Soundtracks ---- */
+    const genWrap = $("#mus-gen-list");
+    SOUNDTRACKS.forEach(st => {
+      const row = document.createElement("div");
+      row.className = "layer-item";
+      row.innerHTML = `
+        <div class="row" style="justify-content:space-between">
+          <div style="flex:1;min-width:150px"><strong style="font-size:.9rem">${st.name}</strong>
+            <div class="note">${st.mood}</div></div>
+          <span class="row">
+            <select data-a="len" style="background:var(--navy-2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:6px 8px;font-size:.8rem">
+              <option value="15">15s</option><option value="30" selected>30s</option><option value="60">60s</option>
+            </select>
+            <button class="btn small" data-a="prev">Preview</button>
+            <button class="btn small primary" data-a="use">Use in video</button>
+          </span>
+        </div>`;
+      let cache = {};
+      const build = async () => {
+        const len = +row.querySelector('[data-a="len"]').value;
+        if (!cache[len]) cache[len] = await genSoundtrack(st.id, len);
+        return cache[len];
+      };
+      row.querySelector('[data-a="prev"]').addEventListener("click", async (e) => {
+        const btn = e.target;
+        btn.disabled = true; btn.textContent = "Composing…";
+        try {
+          const blob = await build();
+          togglePreview(URL.createObjectURL(blob), btn);
+          btn.textContent = "Preview";
+        } catch (err) { toast("Couldn't compose that track"); btn.textContent = "Preview"; }
+        btn.disabled = false;
+      });
+      row.querySelector('[data-a="use"]').addEventListener("click", async (e) => {
+        const btn = e.target;
+        btn.disabled = true; btn.textContent = "Composing…";
+        try {
+          const len = +row.querySelector('[data-a="len"]').value;
+          const blob = await build();
+          loadMusicFile(new File([blob], `GEM ${st.name} (${len}s).wav`, { type: "audio/wav" }));
+        } catch (err) { toast("Couldn't compose that track"); }
+        btn.disabled = false; btn.textContent = "Use in video";
+      });
+      genWrap.appendChild(row);
+    });
+
     $("#sp-go").addEventListener("click", () => {
       const q = $("#sp-q").value.trim();
       window.open("https://open.spotify.com/search/" + encodeURIComponent(q || "trending reels audio"), "_blank", "noopener");
