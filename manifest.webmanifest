@@ -1,0 +1,14 @@
+{
+  "name": "Gem Marketing OS",
+  "short_name": "Gem OS",
+  "description": "GEM Home Team marketing automation — content, compliance, and a pro photo & video studio.",
+  "start_url": "/Marketing/",
+  "scope": "/Marketing/",
+  "display": "standalone",
+  "background_color": "#081E27",
+  "theme_color": "#0D2B36",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

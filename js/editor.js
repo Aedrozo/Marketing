@@ -781,7 +781,9 @@
       phSyncControls(); phRenderTextLayers(); phRequestRender();
       toast("Photo loaded — happy editing");
     };
-    img.onerror = () => toast("Couldn't open that image");
+    img.onerror = () => toast(/\.hei[cf]$/i.test(file.name || "") ?
+      "That's a raw HEIC file — pick it from your photo library instead (it converts automatically), or set iPhone Camera → Formats → Most Compatible" :
+      "Couldn't open that image");
     img.src = url;
   }
   function phLoadDataUrl(dataUrl, name) {
@@ -1035,7 +1037,12 @@
           toast(`${V.clips.length} clip${V.clips.length > 1 ? "s" : ""} on the timeline`);
         }
       }, { once: true });
-      el.addEventListener("error", () => { pending--; toast(`Couldn't open ${f.name}`); }, { once: true });
+      el.addEventListener("error", () => {
+        pending--;
+        toast(/\.mov$/i.test(f.name || "") ?
+          `${f.name} uses a codec this browser can't decode — on iPhone set Camera → Formats → Most Compatible, or open this editor in Safari` :
+          `Couldn't open ${f.name}`);
+      }, { once: true });
     });
     if (!pending) toast("No video files found in that drop");
   }
@@ -1725,6 +1732,9 @@
     phDrop.addEventListener("click", () => phFile.click());
     phDrop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") phFile.click(); });
     phFile.addEventListener("change", e => { if (e.target.files[0]) phLoadFile(e.target.files[0]); e.target.value = ""; });
+    $("#ph-pick-btn").addEventListener("click", (e) => { e.stopPropagation(); phFile.click(); });
+    $("#ph-camera-btn").addEventListener("click", (e) => { e.stopPropagation(); $("#ph-camera").click(); });
+    $("#ph-camera").addEventListener("change", e => { if (e.target.files[0]) phLoadFile(e.target.files[0]); e.target.value = ""; });
     ["dragover", "dragleave", "drop"].forEach(ev => phDrop.addEventListener(ev, e => {
       e.preventDefault();
       phDrop.classList.toggle("over", ev === "dragover");
@@ -2206,6 +2216,9 @@
     const vdDrop = $("#vd-drop"), vdFile = $("#vd-file");
     vdDrop.addEventListener("click", () => vdFile.click());
     vdFile.addEventListener("change", e => { if (e.target.files.length) vdAddFiles(e.target.files); e.target.value = ""; });
+    $("#vd-pick-btn").addEventListener("click", (e) => { e.stopPropagation(); vdFile.click(); });
+    $("#vd-camera-btn").addEventListener("click", (e) => { e.stopPropagation(); $("#vd-camera").click(); });
+    $("#vd-camera").addEventListener("change", e => { if (e.target.files.length) vdAddFiles(e.target.files); e.target.value = ""; });
     ["dragover", "dragleave", "drop"].forEach(ev => vdDrop.addEventListener(ev, e => {
       e.preventDefault();
       vdDrop.classList.toggle("over", ev === "dragover");

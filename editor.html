@@ -151,6 +151,12 @@
   h2.sec { font-family: "Didot", "Bodoni MT", Georgia, "Times New Roman", serif; font-weight: 500; letter-spacing: .02em; }
   details.tool > summary { letter-spacing: .1em; text-transform: uppercase; font-size: .74rem; color: var(--mist, #B8D4E0); }
 </style>
+<meta name="theme-color" content="#0D2B36">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gem OS">
 </head>
 <body>
 
@@ -177,9 +183,14 @@
     <div class="drop" id="ph-drop" tabindex="0" role="button" aria-label="Open a photo">
       <strong>Drop a photo here — or click to browse</strong>
       Edit listing shots, team photos, and client pics like a pro.
-      <div class="hint">JPG · PNG · WEBP · HEIC-converted &nbsp;·&nbsp; You can also paste from the clipboard (Ctrl/Cmd+V)</div>
+      <div class="hint">On your phone this opens your photo library — iPhone, Samsung, and Google all supported (iPhone HEIC converts automatically). Desktop: JPG · PNG · WEBP, or paste with Ctrl/Cmd+V.</div>
+    </div>
+    <div class="row" style="justify-content:center;margin-top:12px">
+      <button class="btn" id="ph-pick-btn">Choose from your photos</button>
+      <button class="btn" id="ph-camera-btn">Take a photo</button>
     </div>
     <input type="file" id="ph-file" accept="image/*" class="hidden">
+    <input type="file" id="ph-camera" accept="image/*" capture="environment" class="hidden">
   </div>
 
   <div class="workspace hidden" id="ph-workspace">
@@ -382,9 +393,14 @@
     <div class="drop" id="vd-drop" tabindex="0" role="button" aria-label="Open video clips">
       <strong>Drop video clips here — or click to browse</strong>
       Trim, stack clips, add text and music, and export reels-ready video.
-      <div class="hint">MP4 · MOV · WEBM &nbsp;·&nbsp; Add multiple clips — they play in order</div>
+      <div class="hint">On your phone this opens your camera roll — iPhone, Samsung, and Google all supported. MP4 · MOV · WEBM · add multiple clips, they play in order.</div>
+    </div>
+    <div class="row" style="justify-content:center;margin-top:12px">
+      <button class="btn" id="vd-pick-btn">Choose from your videos</button>
+      <button class="btn" id="vd-camera-btn">Record a video</button>
     </div>
     <input type="file" id="vd-file" accept="video/*" multiple class="hidden">
+    <input type="file" id="vd-camera" accept="video/*" capture="environment" class="hidden">
   </div>
 
   <div class="workspace hidden" id="vd-workspace">
