@@ -280,10 +280,131 @@
 
   function renderStudioOutput(topic) {
     currentTopic = topic; currentHook = 0;
+    postIdx = 0; postLayout = null; aiCaption = null;
     const out = $("#studio-output");
     out.classList.remove("hidden");
     renderStudioContent();
     out.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ---------------- Post graphics ---------------- */
+  let postSlides = [], postIdx = 0, postPhoto = null, postLayout = null, aiCaption = null;
+
+  function buildPostSlides() {
+    if (!currentTopic) return [];
+    const hook = personalize(currentTopic.hooks[currentHook]);
+    const topic = aiCaption
+      ? Object.assign({}, currentTopic, { caption: aiCaption })
+      : currentTopic;
+    return GEM.slidesForTopic(topic, hook, GEM.getSettings())
+      .map(s => Object.assign({}, s, { photo: postPhoto, layout: postLayout || s.layout }));
+  }
+
+  function renderPostGraphic() {
+    const canvas = $("#post-canvas");
+    if (!canvas || !currentTopic) return;
+    postSlides = buildPostSlides();
+    if (postIdx >= postSlides.length) postIdx = 0;
+    GEM.renderPost(canvas, postSlides[postIdx], $("#post-size").value);
+
+    const multi = postSlides.length > 1;
+    $("#post-nav").classList.toggle("hidden", !multi);
+    $("#post-download-all").classList.toggle("hidden", !multi);
+    if (multi) $("#post-slide-label").textContent = `Slide ${postIdx + 1} of ${postSlides.length}`;
+    $("#post-download-all").textContent = `Download all ${postSlides.length} slides`;
+    $$("#post-layouts .chip").forEach(c =>
+      c.classList.toggle("active", c.dataset.layout === (postLayout || postSlides[postIdx].layout)));
+    $("#post-photo-clear").classList.toggle("hidden", !postPhoto);
+  }
+
+  function initPostGraphics() {
+    const chips = $("#post-layouts");
+    GEM.postLayouts.forEach(l => {
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.dataset.layout = l.id;
+      b.textContent = l.label;
+      b.addEventListener("click", () => { postLayout = l.id; renderPostGraphic(); });
+      chips.appendChild(b);
+    });
+    $("#post-size").addEventListener("change", renderPostGraphic);
+    $("#post-prev").addEventListener("click", () => {
+      postIdx = (postIdx - 1 + postSlides.length) % postSlides.length;
+      renderPostGraphic();
+    });
+    $("#post-next").addEventListener("click", () => {
+      postIdx = (postIdx + 1) % postSlides.length;
+      renderPostGraphic();
+    });
+    $("#post-photo-btn").addEventListener("click", () => $("#post-photo").click());
+    $("#post-photo").addEventListener("change", (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const img = new Image();
+      img.onload = () => { postPhoto = img; renderPostGraphic(); };
+      img.onerror = () => { $("#post-note").textContent = "Couldn't read that image — try a JPG or PNG."; };
+      img.src = URL.createObjectURL(f);
+      e.target.value = "";
+    });
+    $("#post-photo-clear").addEventListener("click", () => { postPhoto = null; renderPostGraphic(); });
+    $("#post-download").addEventListener("click", async (e) => {
+      const btn = e.target;
+      btn.disabled = true;
+      const canvas = document.createElement("canvas");
+      GEM.renderPost(canvas, postSlides[postIdx], $("#post-size").value);
+      await GEM.downloadCanvas(canvas, `gem-${currentTopic.id}${postSlides.length > 1 ? "-" + (postIdx + 1) : ""}.jpg`);
+      btn.disabled = false;
+      flashCopied(btn);
+    });
+    $("#post-download-all").addEventListener("click", async (e) => {
+      const btn = e.target;
+      const old = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Rendering…";
+      await GEM.downloadSlides(postSlides, $("#post-size").value, `gem-${currentTopic.id}`);
+      btn.disabled = false;
+      btn.textContent = old;
+    });
+
+    // Autopilot graphic
+    const apChips = $("#ap-layouts");
+    GEM.postLayouts.forEach(l => {
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.dataset.layout = l.id;
+      b.textContent = l.label;
+      b.addEventListener("click", () => { apLayout = l.id; renderApGraphic(); });
+      apChips.appendChild(b);
+    });
+    $("#ap-size").addEventListener("change", renderApGraphic);
+    $("#ap-photo-btn").addEventListener("click", () => $("#ap-photo").click());
+    $("#ap-photo").addEventListener("change", (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const img = new Image();
+      img.onload = () => { apPhoto = img; renderApGraphic(); };
+      img.src = URL.createObjectURL(f);
+      e.target.value = "";
+    });
+    $("#ap-download").addEventListener("click", async (e) => {
+      if (!apSlide) return;
+      const btn = e.target;
+      btn.disabled = true;
+      const canvas = document.createElement("canvas");
+      GEM.renderPost(canvas, apSlide, $("#ap-size").value);
+      await GEM.downloadCanvas(canvas, `gem-${apLast ? apLast.ap.id : "post"}.jpg`);
+      btn.disabled = false;
+      flashCopied(btn);
+    });
+  }
+
+  let apSlide = null, apPhoto = null, apLayout = null;
+  function renderApGraphic() {
+    if (!apLast) return;
+    const base = GEM.slidesForAutopilot(apLast.ap, apLast.result, GEM.getSettings())[0];
+    apSlide = Object.assign({}, base, { photo: apPhoto, layout: apLayout || base.layout });
+    GEM.renderPost($("#ap-canvas"), apSlide, $("#ap-size").value);
+    $$("#ap-layouts .chip").forEach(c => c.classList.toggle("active", c.dataset.layout === apSlide.layout));
   }
 
   function renderStudioContent() {
@@ -325,6 +446,8 @@
       `<li class="finding ${f.level}"><strong>${f.label}</strong><span>${f.why}</span></li>`
     ).join("");
 
+    renderPostGraphic();
+
     $("#out-copy-full").onclick = (e) => copyText(full, e.target);
     $("#out-copy-caption").onclick = (e) => copyText(caption, e.target);
     $("#out-copy-tags").onclick = (e) => copyText(tags, e.target);
@@ -353,6 +476,9 @@
           : "⛔ AI version needs fixes: " + check.findings.map(f => f.label).join("; ");
         $("#out-copy-caption").onclick = (ev) => copyText(aiText, ev.target);
         $("#out-copy-full").onclick = (ev) => copyText(aiFull, ev.target);
+        // regenerate the graphic from the AI copy so image and caption always match
+        aiCaption = aiText.replace(/^#.*$/gm, "").trim();
+        renderPostGraphic();
       } catch (err) {
         aiNote.textContent = err.message;
         aiNote.classList.remove("hidden");
@@ -462,6 +588,7 @@
 
     const result = ap.build(values, prev);
     apLast = { ap, values, result };
+    apLayout = null;
     $("#ap-output").classList.remove("hidden");
     $("#ap-onimage").textContent = result.onImage;
     $("#ap-caption").textContent = result.caption;
@@ -476,6 +603,7 @@
 
     $("#ap-copy-image").onclick = (e) => copyText(result.onImage, e.target);
     $("#ap-copy-caption").onclick = (e) => copyText(result.caption, e.target);
+    renderApGraphic();
     $("#ap-output").scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
@@ -1116,6 +1244,8 @@
       }
     });
     $("#dm-copy").addEventListener("click", (e) => copyText($("#dm-out").textContent, e.target));
+
+    initPostGraphics();
 
     $("#kpi-import-btn").addEventListener("click", () => $("#kpi-import").click());
     $("#kpi-import").addEventListener("change", (e) => {

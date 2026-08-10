@@ -605,3 +605,46 @@ html { scroll-behavior: auto; }
   .nav-mobile-btn { display: block; }
   .nav { padding: 6px 0 10px; }
 }
+
+/* ---------- Post graphic generator ---------- */
+.postgen {
+  display: grid; grid-template-columns: minmax(0, 300px) 1fr;
+  gap: 20px; align-items: start; margin: 6px 0 4px;
+}
+.postgen-frame {
+  background: var(--ink); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px; display: flex; justify-content: center;
+}
+.postgen-frame canvas {
+  max-width: 100%; height: auto; display: block; border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(2, 10, 14, .5);
+}
+.postgen-nav {
+  display: flex; align-items: center; gap: 10px; justify-content: center;
+  margin-top: 10px; color: var(--mist-dim); font-size: .8rem;
+}
+.postgen-side { display: flex; flex-direction: column; gap: 12px; }
+.postgen-side .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.postgen-side .chip {
+  background: var(--card-2); border: 1px solid var(--line); color: var(--mist);
+  border-radius: 999px; padding: 6px 14px; font-size: .78rem; font-weight: 600;
+  font-family: var(--font); cursor: pointer;
+}
+.postgen-side .chip:hover { border-color: var(--blue); color: var(--white); }
+.postgen-side .chip.active { background: var(--blue); border-color: var(--blue); color: var(--ink); }
+@media (max-width: 760px) { .postgen { grid-template-columns: 1fr; } }
+.postgen-side .field label {
+  display: block; font-size: .62rem; font-weight: 700; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--mist-dim); margin-bottom: 7px;
+}
+.postgen-side select {
+  width: 100%; appearance: none; font-family: var(--font);
+  background: var(--ink-2); border: 1px solid var(--line); color: var(--white);
+  border-radius: 9px; padding: 10px 34px 10px 12px; font-size: .86rem; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--mist-dim) 50%),
+                    linear-gradient(135deg, var(--mist-dim) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.postgen-side select:focus { outline: none; border-color: var(--blue); }

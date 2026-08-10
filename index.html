@@ -190,6 +190,37 @@
       <div id="out-compliance" class="comp-badge"></div>
       <ul class="findings" id="out-comp-findings"></ul>
 
+      <div class="block-head">
+        <h4>The post itself</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn small" id="post-photo-btn">Use my photo</button>
+          <button class="btn small hidden" id="post-photo-clear">Remove photo</button>
+        </div>
+      </div>
+      <div class="postgen">
+        <div>
+          <div class="postgen-frame"><canvas id="post-canvas"></canvas></div>
+          <div class="postgen-nav hidden" id="post-nav">
+            <button class="btn small" id="post-prev">←</button>
+            <span id="post-slide-label"></span>
+            <button class="btn small" id="post-next">→</button>
+          </div>
+        </div>
+        <div class="postgen-side">
+          <div class="field"><label>Layout</label><div class="chips" id="post-layouts"></div></div>
+          <div class="field"><label for="post-size">Size</label>
+            <select id="post-size">
+              <option value="portrait">Instagram portrait · 1080×1350</option>
+              <option value="square">Square · 1080×1080</option>
+              <option value="story">Story / Reel cover · 1080×1920</option>
+            </select></div>
+          <button class="btn primary" id="post-download">Download image</button>
+          <button class="btn hidden" id="post-download-all">Download all slides</button>
+          <p class="footnote" id="post-note">Finished, on-brand and ready to post — your NMLS line and Equal Housing disclosure are rendered into every image. Add one of your own photos for the most authentic look.</p>
+        </div>
+      </div>
+      <input type="file" id="post-photo" accept="image/*" class="hidden">
+
       <div class="block-head"><h4>Hook — pick your opener</h4></div>
       <div class="hook-list" id="out-hooks"></div>
 
@@ -227,6 +258,26 @@
       <p class="footnote hidden" id="ap-ai-note"></p>
       <div id="ap-output" class="hidden">
         <div id="ap-compliance" class="comp-badge"></div>
+        <div class="block-head"><h4>The graphic</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn small" id="ap-photo-btn">Use my photo</button>
+            <button class="btn small primary" id="ap-download">Download image</button>
+          </div>
+        </div>
+        <div class="postgen">
+          <div class="postgen-frame"><canvas id="ap-canvas"></canvas></div>
+          <div class="postgen-side">
+            <div class="field"><label>Layout</label><div class="chips" id="ap-layouts"></div></div>
+            <div class="field"><label for="ap-size">Size</label>
+              <select id="ap-size">
+                <option value="portrait">Instagram portrait · 1080×1350</option>
+                <option value="square">Square · 1080×1080</option>
+                <option value="story">Story / Reel cover · 1080×1920</option>
+              </select></div>
+            <p class="footnote">Generated from the facts you entered — no invented numbers, disclosure baked in.</p>
+          </div>
+        </div>
+        <input type="file" id="ap-photo" accept="image/*" class="hidden">
         <div class="block-head"><h4>On-image text</h4><button class="btn small" id="ap-copy-image">Copy</button></div>
         <div class="copy-block" id="ap-onimage"></div>
         <div class="block-head"><h4>Complete caption</h4><button class="btn small" id="ap-copy-caption">Copy</button></div>
@@ -512,6 +563,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/compliance.js"></script>
+<script src="js/postgen.js"></script>
 <script src="js/ai.js"></script>
 <script src="js/app.js"></script>
 </body>
